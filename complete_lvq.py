@@ -3,6 +3,22 @@ from random import seed
 from random import randrange
 from csv import reader
 from math import sqrt
+import sys
+import time
+import threading
+import itertools
+
+done = False
+def animate():
+	for c in itertools.cycle(['|', '/', '-', '\\']):
+		if done:
+			sys.stdout.write('\r')
+			sys.stdout.flush()
+			break
+		sys.stdout.write('\rmenunggu proses pembelajaran ' + c)
+		sys.stdout.flush()
+		time.sleep(0.1)
+	sys.stdout.write('\rDone!     ')
 
 # Load a CSV file
 def load_csv(filename):
@@ -126,17 +142,20 @@ def learning_vector_quantization(train, test, n_codebooks, lrate, epochs):
 # Test LVQ on Ionosphere dataset
 seed(1)
 # load and prepare data
-filename = 'ionosphere.csv'
+filename = 'bimbelx.csv'
 dataset = load_csv(filename)
 for i in range(len(dataset[0])-1):
-	str_column_to_float(dataset, i)
+	str_column_to_int(dataset, i)
 # convert class column to integers
 str_column_to_int(dataset, len(dataset[0])-1)
 # evaluate algorithm
-n_folds = 5
+n_folds = 3
 learn_rate = 0.3
 n_epochs = 50
-n_codebooks = 20
+n_codebooks = 4
+thread1 = threading.Thread(target = animate)
+thread1.start()
 scores = evaluate_algorithm(dataset, learning_vector_quantization, n_folds, n_codebooks, learn_rate, n_epochs)
-print('Scores: %s' % scores)
+done = True
+print('\nScores: %s' % scores)
 print('Mean Accuracy: %.3f%%' % (sum(scores)/float(len(scores))))

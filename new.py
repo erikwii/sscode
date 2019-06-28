@@ -1,14 +1,22 @@
+import os
 import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 
-path_to_img = 'C:/Users/X230/Desktop/sscode/originals-resized/'
-img = cv2.imread(path_to_img + 'note-eighth-a1-998.png', 0)
-edges = cv2.Canny(img, 100, 200)
+from grouping import *
 
-plt.subplot(121), plt.imshow(img, cmap='gray')
-plt.title('Original Image'), plt.xticks([]), plt.yticks([])
-plt.subplot(122), plt.imshow(edges, cmap='gray')
-plt.title('Edge Image'), plt.xticks([]), plt.yticks([])
-
-plt.show()
+bimbelx = open("bimbelx.csv", "w")
+class_column = 0
+for note in c1:
+    class_counter = 0
+    for i in note:
+        img = cv2.imread(dataset_path + i, cv2.IMREAD_GRAYSCALE)
+        for row in img:
+            for column in row:
+                bimbelx.write(str(column) + ", ")
+        bimbelx.write(str(class_column) + "\n")
+        class_counter += 1
+        if class_counter == 10:
+            break
+    class_column += 1
+bimbelx.close()

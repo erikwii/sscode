@@ -1,5 +1,15 @@
+import os, os.path
+import glob
 from random import randrange
 from random import seed
+
+dataset_path = os.getcwd() + "\\img\\originals-resized"
+files = os.listdir( dataset_path )
+n_img = len(files)
+
+# counting file with similar name
+c1_counter = len(glob.glob1(dataset_path, "*eighth-c1*"))
+print (c1_counter)
 
 # Create a random codebook vector
 def randomCodebook(trainingData):
@@ -20,4 +30,4 @@ dataset = [[2.7810836, 2.550537003, 0],
            [8.675418651, -0.242068655, 1],
            [7.673756466, 3.508563011, 1]]
 
-print(dataset.pop(1))
+# print(dataset.pop(1))
