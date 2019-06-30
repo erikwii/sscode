@@ -3,12 +3,12 @@ from random import seed
 from random import randrange
 from csv import reader
 from math import sqrt
+import numpy as np
 import sys
 import time
 import threading
 import itertools
 
-done = False
 def animate():
 	for c in itertools.cycle(['|', '/', '-', '\\']):
 		if done:
@@ -46,6 +46,10 @@ def str_column_to_int(dataset, column):
 	for row in dataset:
 		row[column] = lookup[row[column]]
 	return lookup
+
+def min_max_normalize(dataset, column, min = 0, max = 100):
+	for row in dataset:
+		row[column] = (row[column] - min) / (max - min)
 
 # Split a dataset into k folds
 def cross_validation_split(dataset, n_folds):
@@ -119,7 +123,7 @@ def random_codebook(train):
 def train_codebooks(train, n_codebooks, lrate, epochs):
 	codebooks = [random_codebook(train) for i in range(n_codebooks)]
 	for epoch in range(epochs):
-		rate = lrate * (1.0-(epoch/float(epochs)))
+		rate = lrate * 0.1
 		for row in train:
 			bmu = get_best_matching_unit(codebooks, row)
 			for i in range(len(row)-1):
@@ -139,22 +143,31 @@ def learning_vector_quantization(train, test, n_codebooks, lrate, epochs):
 		predictions.append(output)
 	return(predictions)
 
-# Test LVQ on Ionosphere dataset
 seed(1)
+
 # load and prepare data
 filename = 'bimbelx.csv'
 dataset = load_csv(filename)
 for i in range(len(dataset[0])-1):
 	str_column_to_int(dataset, i)
+
+for i in range(len(dataset[0])-1):
+	min_max_normalize(dataset, i, 0, 255)
+
 # convert class column to integers
 str_column_to_int(dataset, len(dataset[0])-1)
+
 # evaluate algorithm
-n_folds = 3
-learn_rate = 0.3
-n_epochs = 50
+n_folds = 5
+learn_rate = 0.05
+n_epochs = 200
 n_codebooks = 4
+
+done = False
+# Loading animation
 thread1 = threading.Thread(target = animate)
 thread1.start()
+
 scores = evaluate_algorithm(dataset, learning_vector_quantization, n_folds, n_codebooks, learn_rate, n_epochs)
 done = True
 print('\nScores: %s' % scores)
