@@ -1,9 +1,11 @@
 # LVQ for the Ionosphere Dataset
 from random import seed
 from random import randrange
+from random import shuffle
 from csv import reader
 from math import sqrt
 import numpy as np
+import os
 import sys
 import time
 import threading
@@ -38,18 +40,13 @@ def str_column_to_float(dataset, column):
 
 # Convert string column to integer
 def str_column_to_int(dataset, column):
-	class_values = [row[column] for row in dataset]
-	unique = set(class_values)
-	lookup = dict()
-	for i, value in enumerate(unique):
-		lookup[value] = i
 	for row in dataset:
-		row[column] = lookup[row[column]]
-	return lookup
+		row[column] = int(row[column])
 
-def min_max_normalize(dataset, column, min = 0, max = 100):
-	for row in dataset:
-		row[column] = (row[column] - min) / (max - min)
+# Normalization with min-max method
+def min_max_normalize(dataset, column, min=0, max=100):
+	for i in range(len(dataset)):
+		dataset[i][column] = round((dataset[i][column] - min) / (max - min), 6)
 
 # Split a dataset into k folds
 def cross_validation_split(dataset, n_folds):
@@ -113,15 +110,25 @@ def predict(codebooks, test_row):
 	return bmu[-1]
 
 # Create a random codebook vector
-def random_codebook(train):
-	n_records = len(train)
-	n_features = len(train[0])
-	codebook = [train[randrange(n_records)][i] for i in range(n_features)]
+def random_codebook(train, n_codebooks):
+	finded_class = list()
+	codebook = list()
+	for row in train:
+		if (row[-1] in finded_class) == False:
+			finded_class.append(row[-1])
+			codebook.append(row)
+
+		if len(finded_class) == n_codebooks:
+			break
 	return codebook
 
 # Train a set of codebook vectors
 def train_codebooks(train, n_codebooks, lrate, epochs):
-	codebooks = [random_codebook(train) for i in range(n_codebooks)]
+	codebooks = random_codebook(train, n_codebooks)
+
+	for codebook in codebooks:
+		print(codebook[-1])
+
 	for epoch in range(epochs):
 		rate = lrate * 0.1
 		for row in train:
@@ -137,17 +144,28 @@ def train_codebooks(train, n_codebooks, lrate, epochs):
 # LVQ Algorithm
 def learning_vector_quantization(train, test, n_codebooks, lrate, epochs):
 	codebooks = train_codebooks(train, n_codebooks, lrate, epochs)
+	write_codebooks(codebooks)
 	predictions = list()
 	for row in test:
 		output = predict(codebooks, row)
 		predictions.append(output)
 	return(predictions)
 
+def write_codebooks(codebooks):
+	filename = 'codebooks.csv'
+	f = open(filename, 'w')
+	for codebook in codebooks:
+		for val in codebook:
+			f.write(str(val) + ', ')
+		f.write('\n')
+	f.close()
+
 seed(1)
 
 # load and prepare data
 filename = 'bimbelx.csv'
 dataset = load_csv(filename)
+shuffle(dataset)
 for i in range(len(dataset[0])-1):
 	str_column_to_int(dataset, i)
 
@@ -155,7 +173,7 @@ for i in range(len(dataset[0])-1):
 	min_max_normalize(dataset, i, 0, 255)
 
 # convert class column to integers
-str_column_to_int(dataset, len(dataset[0])-1)
+str_column_to_int(dataset, -1)
 
 # evaluate algorithm
 n_folds = 5
@@ -170,5 +188,8 @@ thread1.start()
 
 scores = evaluate_algorithm(dataset, learning_vector_quantization, n_folds, n_codebooks, learn_rate, n_epochs)
 done = True
+
+accuracy = str(round(sum(scores)/float(len(scores)), 3))
+os.rename('codebooks.csv', 'codebooks('+accuracy+').csv')
 print('\nScores: %s' % scores)
 print('Mean Accuracy: %.3f%%' % (sum(scores)/float(len(scores))))

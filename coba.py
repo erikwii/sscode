@@ -1,33 +1,28 @@
-import os, os.path
-import glob
-from random import randrange
-from random import seed
+import numpy
+import cv2
+from csv import reader
 
-dataset_path = os.getcwd() + "\\img\\originals-resized"
-files = os.listdir( dataset_path )
-n_img = len(files)
+# Load a CSV file
+def load_csv(filename):
+	dataset = list()
+	with open(filename, 'r') as file:
+		csv_reader = reader(file)
+		for row in csv_reader:
+			if not row:
+				continue
+			dataset.append(row)
+	return dataset
 
-# counting file with similar name
-c1_counter = len(glob.glob1(dataset_path, "*eighth-c1*"))
-print (c1_counter)
 
-# Create a random codebook vector
-def randomCodebook(trainingData):
-	n_records = len(trainingData)
-	n_features = len(trainingData[0])
-	codebook = [trainingData[randrange(n_records)][i] for i in range(n_features)]
-	return codebook
+filename = 'codebooks(51.429).csv'
+dataset = load_csv(filename)
 
-seed(1)
-dataset = [[2.7810836, 2.550537003, 0],
-           [1.465489372, 2.362125076, 0],
-           [3.396561688, 4.400293529, 0],
-           [1.38807019, 1.850220317, 0],
-           [3.06407232, 3.005305973, 0],
-           [7.627531214, 2.759262235, 1],
-           [5.332441248, 2.088626775, 1],
-           [6.922596716, 1.77106367, 1],
-           [8.675418651, -0.242068655, 1],
-           [7.673756466, 3.508563011, 1]]
+img = numpy.zeros([5, 5, 3])
 
-# print(dataset.pop(1))
+img[:, :, 0] = numpy.ones([5, 5])*64/255.0
+img[:, :, 1] = numpy.ones([5, 5])*128/255.0
+img[:, :, 2] = numpy.ones([5, 5])*192/255.0
+
+cv2.imwrite('color_img.jpg', img)
+cv2.imshow("image", img)
+cv2.waitKey()

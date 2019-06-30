@@ -16,7 +16,7 @@ for note in c1:
                 bimbelx.write(str(column) + ", ")
         bimbelx.write(str(class_column) + "\n")
         class_counter += 1
-        if class_counter == 10:
+        if class_counter == 20:
             break
     class_column += 1
 bimbelx.close()
