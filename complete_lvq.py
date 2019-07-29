@@ -177,8 +177,8 @@ str_column_to_int(dataset, -1)
 
 # evaluate algorithm
 n_folds = 5
-learn_rate = 0.05
-n_epochs = 200
+learn_rate = 0.005
+n_epochs = 100
 n_codebooks = 4
 
 done = False
