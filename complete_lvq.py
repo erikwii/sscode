@@ -126,9 +126,6 @@ def random_codebook(train, n_codebooks):
 def train_codebooks(train, n_codebooks, lrate, epochs):
 	codebooks = random_codebook(train, n_codebooks)
 
-	for codebook in codebooks:
-		print(codebook[-1])
-
 	for epoch in range(epochs):
 		rate = lrate * 0.1
 		for row in train:

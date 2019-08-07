@@ -182,12 +182,11 @@ class LVQ{
 				System.out.println("Data "+ (i+1) +" Nearest to " + (detIndex+1));
 				
 				if (target[i] == (detIndex+1)) {
-				// Update Weight based on minimum length to the data
-				for (int j = 0; j < this.weight[detIndex].length; j++) {
-					weight[detIndex][j] = weight[detIndex][j] + alpa*(input[i][j]-weight[detIndex][j]);
+					// Update Weight based on minimum length to the data
+					for (int j = 0; j < this.weight[detIndex].length; j++) {
+						weight[detIndex][j] = weight[detIndex][j] + alpa*(input[i][j]-weight[detIndex][j]);
 					}
 				} 	
-				
 				else { 
 					errorCount++;
 					for (int j = 0; j < this.weight[detIndex].length; j++) {
