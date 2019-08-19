@@ -3,9 +3,9 @@ import glob
 dataset_path = "C:/Users/X230/Desktop/sscode/img/originals-resized/"
 # Group C1
 whole_c1 = glob.glob1(dataset_path, "*whole-c1*")
-half_c1 = glob.glob1(dataset_path, "*half-c1*")
-quarter_c1 = glob.glob1(dataset_path, "*quarter-a1*")
-eighth_c1 = glob.glob1(dataset_path, "*eighth-a1*")
+half_c1 = glob.glob1(dataset_path, "note-half*")
+quarter_c1 = glob.glob1(dataset_path, "note-quarter*")
+eighth_c1 = glob.glob1(dataset_path, "note-eighth*")
 sixteenth_c1 = glob.glob1(dataset_path, "*sixteenth-c1*")
 
 c1 = [half_c1, quarter_c1, eighth_c1]
