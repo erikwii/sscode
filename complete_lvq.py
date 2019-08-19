@@ -11,16 +11,16 @@ import time
 import threading
 import itertools
 
-def animate():
-	for c in itertools.cycle(['|', '/', '-', '\\']):
-		if done:
-			sys.stdout.write('\r')
-			sys.stdout.flush()
-			break
-		sys.stdout.write('\rmenunggu proses pembelajaran ' + c)
-		sys.stdout.flush()
-		time.sleep(0.1)
-	sys.stdout.write('\rDone!     ')
+# def animate():
+# 	for c in itertools.cycle(['|', '/', '-', '\\']):
+# 		if done:
+# 			sys.stdout.write('\r')
+# 			sys.stdout.flush()
+# 			break
+# 		sys.stdout.write('\rmenunggu proses pembelajaran ' + c)
+# 		sys.stdout.flush()
+# 		time.sleep(0.1)
+# 	sys.stdout.write('\rDone!     ')
 
 # Load a CSV file
 def load_csv(filename):
@@ -173,15 +173,15 @@ for i in range(len(dataset[0])-1):
 str_column_to_int(dataset, -1)
 
 # evaluate algorithm
-n_folds = 5
+n_folds = 2
 learn_rate = 0.05
 n_epochs = 200
-n_codebooks = 4
+n_codebooks = 2
 
 done = False
 # Loading animation
-thread1 = threading.Thread(target = animate)
-thread1.start()
+# thread1 = threading.Thread(target = animate)
+# thread1.start()
 
 scores = evaluate_algorithm(dataset, learning_vector_quantization, n_folds, n_codebooks, learn_rate, n_epochs)
 done = True

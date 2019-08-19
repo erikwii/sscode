@@ -11,6 +11,17 @@ import time
 import threading
 import itertools
 
+# def animate():
+# 	for c in itertools.cycle(['|', '/', '-', '\\']):
+# 		if done:
+# 			sys.stdout.write('\r')
+# 			sys.stdout.flush()
+# 			break
+# 		sys.stdout.write('\rmenunggu proses pembelajaran ' + c)
+# 		sys.stdout.flush()
+# 		time.sleep(0.1)
+# 	sys.stdout.write('\rDone!     ')
+
 # Load a CSV file
 def load_csv(filename):
 	dataset = list()
@@ -37,19 +48,6 @@ def min_max_normalize(dataset, column, min=0, max=100):
 	for i in range(len(dataset)):
 		dataset[i][column] = round((dataset[i][column] - min) / (max - min), 6)
 
-# Split a dataset into k folds
-def cross_validation_split(dataset, n_folds):
-	dataset_split = list()
-	dataset_copy = list(dataset)
-	fold_size = int(len(dataset) / n_folds)
-	for i in range(n_folds):
-		fold = list()
-		while len(fold) < fold_size:
-			index = randrange(len(dataset_copy))
-			fold.append(dataset_copy.pop(index))
-		dataset_split.append(fold)
-	return dataset_split
-
 # Calculate accuracy percentage
 def accuracy_metric(actual, predicted):
 	correct = 0
@@ -59,22 +57,41 @@ def accuracy_metric(actual, predicted):
 	return correct / float(len(actual)) * 100.0
 
 # Evaluate an algorithm using a cross validation split
-def evaluate_algorithm(dataset, algorithm, n_folds, *args):
-	folds = cross_validation_split(dataset, n_folds)
+def evaluate_algorithm(dataset, algorithm, *args):
 	scores = list()
-	for fold in folds:
-		train_set = list(folds)
-		train_set.remove(fold)
-		train_set = sum(train_set, [])
-		test_set = list()
-		for row in fold:
-			row_copy = list(row)
-			test_set.append(row_copy)
-			row_copy[-1] = None
-		predicted = algorithm(train_set, test_set, *args)
-		actual = [row[-1] for row in fold]
-		accuracy = accuracy_metric(actual, predicted)
-		scores.append(accuracy)
+	
+	train_set = list(dataset)
+	print(len(train_set))
+	train_set = sum(train_set, [])
+	print(len(train_set))
+	exit()
+	test_set = list()
+	for row in dataset:
+		row_copy = list(row)
+		test_set.append(row_copy)
+		row_copy[-1] = nil
+	
+	print(len(dataset))
+	print(len(train_set))
+	print(len(test_set))
+	exit()
+	train = open("train.csv", 'w')
+	test = open("test.csv", 'w')
+	
+	for tr in train_set:
+		train.write(str(tr)+"\n")
+	train.close()
+
+	for ts in test_set:
+		test.write(str(ts)+"\n")
+	test.close()
+	
+	exit()
+
+	predicted = algorithm(train_set, test_set, *args)
+	actual = [row[-1] for row in fold]
+	accuracy = accuracy_metric(actual, predicted)
+	scores.append(accuracy)
 	return scores
 
 # calculate the Euclidean distance between two vectors
@@ -137,7 +154,7 @@ def learning_vector_quantization(train, test, n_codebooks, lrate, epochs):
 		predictions.append(output)
 	return(predictions)
 
-# Write final codebooks to file
+
 def write_codebooks(codebooks):
 	filename = 'codebooks.csv'
 	f = open(filename, 'w')
@@ -153,7 +170,9 @@ seed(1)
 # load and prepare data
 filename = 'bimbelx.csv'
 dataset = load_csv(filename)
+test_set = load_csv("test.csv")
 shuffle(dataset)
+shuffle(test_set)
 for i in range(len(dataset[0])-1):
 	str_column_to_int(dataset, i)
 
@@ -163,22 +182,43 @@ for i in range(len(dataset[0])-1):
 # convert class column to integers
 str_column_to_int(dataset, -1)
 
+for i in range(len(test_set[0])-1):
+	str_column_to_int(test_set, i)
+
+for i in range(len(test_set[0])-1):
+	min_max_normalize(test_set, i, 0, 255)
+
+# convert class column to integers
+str_column_to_int(test_set, -1)
+
 # evaluate algorithm
-n_folds = 5
+n_folds = 2
 learn_rate = 0.05
 n_epochs = 200
-n_codebooks = 4
+n_codebooks = 3
 
 done = False
 # Loading animation
-thread1 = threading.Thread(target=animate)
-thread1.start()
+# thread1 = threading.Thread(target = animate)
+# thread1.start()
 
-scores = evaluate_algorithm(
-	dataset, learning_vector_quantization, n_folds, n_codebooks, learn_rate, n_epochs)
+# scores = evaluate_algorithm(
+# 	dataset, learning_vector_quantization, n_codebooks, learn_rate, n_epochs)
 done = True
 
-accuracy = str(round(sum(scores)/float(len(scores)), 3))
-os.rename('codebooks.csv', 'codebooks('+accuracy+').csv')
+codebooks = train_codebooks(dataset, n_codebooks, learn_rate, n_epochs)
+for codebook in codebooks:
+	print(codebook[-1])
+predictions = list()
+for row in test_set:
+	output = predict(codebooks, row)
+	predictions.append(output)
+
+actual = [row[-1] for row in test_set]
+accuracy = accuracy_metric(actual, predictions)
+scores = accuracy
+
+accuracy = str(scores)
+# os.rename('codebooks.csv', 'codebooks('+accuracy+').csv')
 print('\nScores: %s' % scores)
-print('Mean Accuracy: %.3f%%' % (sum(scores)/float(len(scores))))
+# print('Mean Accuracy: %.3f%%' % (sum(scores)/float(len(scores))))
