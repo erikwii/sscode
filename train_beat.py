@@ -1,4 +1,3 @@
-from grouping import *
 from random import seed
 from random import randrange
 from random import shuffle
@@ -20,24 +19,25 @@ def str_column_to_int(dataset, column):
 		row[column] = int(row[column])
 
 seed(1)
-learn_rate = 0.5
-n_epochs = 200
+learn_rate = 0.01
+n_epochs = 300
 n_codebooks = 3
 
-train_lvq = LVQ()
-train_lvq.set_n_codebooks(n_codebooks)
+train_beats = LVQ()
+train_beats.set_n_codebooks(n_codebooks)
+
 # load and prepare data
-filename = 'bimbelx.csv'
-train_lvq.load_csv(filename, 'train')
-train_lvq.load_csv("test.csv", 'test')
+filename = 'train_beats.csv'
+train_beats.load_csv(filename, 'train')
 
-# scores = evaluate_algorithm(
-# 	dataset, learning_vector_quantization, n_codebooks, learn_rate, n_epochs)
+train_beats.train_codebooks(learn_rate, n_epochs)
 
-train_lvq.train_codebooks(learn_rate, n_epochs)
-score, wrong_data = train_lvq.accuracy_metric('train')
+for c in train_beats.codebooks: print(c[-1])
+
+score, wrong_data = train_beats.accuracy_metric('train')
 
 print(score)
+print(wrong_data)
 exit()
 img_data = list()
 
