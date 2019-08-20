@@ -25,11 +25,18 @@ contours, hierarchy = cv2.findContours(
 # For each contour, find the bounding rectangle and draw it
 for cnt in contours:
     x, y, w, h = cv2.boundingRect(cnt)
-    cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
+    cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 1)
     cv2.rectangle(thresh_color, (x, y), (x+w, y+h), (0, 255, 0), 2)
 
+scale_percent = 300 # percent of original size
+width = int(img.shape[1] * scale_percent / 100)
+height = int(img.shape[0] * scale_percent / 100)
+dim = (width, height)
+# resize image
+resized = cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
+
 # Finally show the image
-cv2.imshow('img', img)
+cv2.imshow('img', resized)
 # cv2.imshow('res', thresh_color)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
