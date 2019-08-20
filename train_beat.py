@@ -20,7 +20,7 @@ def str_column_to_int(dataset, column):
 
 seed(1)
 learn_rate = 0.01
-n_epochs = 300
+n_epochs = 400
 n_codebooks = 3
 
 train_beats = LVQ()
