@@ -60,20 +60,21 @@ score, wrong_data = train_beats.accuracy_metric('train')
 
 print(score)
 print(wrong_data)
-exit()
+# exit()
 img_data = list()
 
 print(len(beats[0]))
 
-class_counter = 0
-for i in train_beats.data_test:
-    if (class_counter+1) in wrong_data:
-        print('masuk')
-        exit()
-        img = cv.imread(dataset_path + i, cv.IMREAD_GRAYSCALE)
-        thresh = cv.adaptiveThreshold(img, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY_INV, 11, 2)
-        img_data.append(thresh)
-    class_counter += 1
+class_column = 0
+for note in beats:
+    class_counter = 0
+    for i in note:
+        if (class_counter+1) in wrong_data:
+            img = cv.imread(dataset_path + i, cv.IMREAD_GRAYSCALE)
+            thresh = cv.adaptiveThreshold(img, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY_INV, 11, 2)
+            img_data.append(thresh)
+        class_counter += 1
+    class_column += 1
 
 w, h = find_middle_factor(len(wrong_data))
 print(len(img_data))

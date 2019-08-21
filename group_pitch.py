@@ -1,6 +1,8 @@
 import glob
+import os
+path = os.path.dirname(os.path.abspath(__file__))
 
-dataset_path = "C:/Users/X230/Desktop/sscode/img/originals-resized/"
+dataset_path = path + "/img/originals-resized/"
 
 c1 = glob.glob1(dataset_path, "*c1*")
 d1 = glob.glob1(dataset_path, "*d1*")
