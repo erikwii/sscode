@@ -12,11 +12,33 @@ import time
 import threading
 import itertools
 from lvq import LVQ
+from group_beat import *
 
 # Convert string column to integer
 def str_column_to_int(dataset, column):
 	for row in dataset:
 		row[column] = int(row[column])
+
+def findMiddle(input_list):
+    middle = float(len(input_list))/2
+    if middle % 2 != 0:
+        return (input_list[int(middle - .5)], input_list[int(middle - .5)])
+    else:
+        return (input_list[int(middle)], input_list[int(middle-1)])
+
+def find_middle_factor(num):
+    count = 0
+    number = int(num)
+    factors = list()
+    for i in range(2, number-1):
+        if number%i == 0:
+            factors.append(i)
+            i += 1
+            count += 1
+    if count==0:
+        return (num, 1)
+
+    return findMiddle(factors)
 
 seed(1)
 learn_rate = 0.01
@@ -42,7 +64,7 @@ exit()
 img_data = list()
 
 class_column = 0
-for note in c1:
+for note in beats:
     class_counter = 0
     for i in note:
         if class_counter+1 in wrong_data:
@@ -52,8 +74,10 @@ for note in c1:
         class_counter += 1
     class_column += 1
 
+w, h = find_middle_factor(len(wrong_data))
+
 for i in range(len(wrong_data)):
-    plt.subplot(4, 3, i+1), plt.imshow(img_data[i], 'gray')
+    plt.subplot(w, h, i+1), plt.imshow(img_data[i], 'gray')
     plt.title(wrong_data[i])
     plt.xticks([]), plt.yticks([])
 plt.show()

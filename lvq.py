@@ -29,7 +29,8 @@ class LVQ:
 
         # convert class column to integers
         self.str_column_to_int(dataset, -1)
-        shuffle(dataset)
+
+        # shuffle(dataset)
 
         if t is 'train':
             self.data_train = dataset
@@ -58,7 +59,7 @@ class LVQ:
         # convert class column to integers
         self.str_column_to_int(dataset, -1)
         
-        shuffle(dataset)
+        # shuffle(dataset)
 
         if t is 'train':
             self.data_train = dataset
@@ -174,10 +175,10 @@ class LVQ:
                 wrong_data.append(i+1)
         return (correct / float(len(actual)) * 100.0), wrong_data
 
-    def write_codebooks(self, codebooks):
-        filename = 'codebooks.csv'
+    def write_codebooks(self, name):
+        filename = name
         f = open(filename, 'w')
-        for codebook in codebooks:
+        for codebook in self.codebooks:
             for val in codebook:
                 f.write(str(val) + ', ')
             f.write('\n')
@@ -189,7 +190,7 @@ class LVQ:
                 sys.stdout.write('\r')
                 sys.stdout.flush()
                 break
-            sys.stdout.write('\rmenunggu proses pembelajaran ' + c)
+            sys.stdout.write('\rMenunggu proses pembelajaran ' + c)
             sys.stdout.flush()
             time.sleep(0.1)
         print("\n")
