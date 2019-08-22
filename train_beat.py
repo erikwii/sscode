@@ -76,9 +76,9 @@ for note in beats:
         class_counter += 1
     class_column += 1
 
-w, h = find_middle_factor(len(wrong_data))
+h, w = find_middle_factor(len(wrong_data))
 print(len(img_data))
-exit()
+# exit()
 for i in range(len(wrong_data)):
     plt.subplot(w, h, i+1), plt.imshow(img_data[i], 'gray')
     plt.title(wrong_data[i])
