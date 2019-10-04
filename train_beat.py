@@ -60,6 +60,7 @@ score, wrong_data = train_beats.accuracy_metric('train')
 
 print(score)
 print(wrong_data)
+print(len(wrong_data))
 # exit()
 img_data = list()
 
@@ -77,6 +78,8 @@ for note in beats:
     class_column += 1
 
 h, w = find_middle_factor(len(wrong_data))
+if w == 1 and len(wrong_data) > 10 :
+    h, w = find_middle_factor(len(wrong_data)+1)
 print(len(img_data))
 # exit()
 for i in range(len(wrong_data)):
