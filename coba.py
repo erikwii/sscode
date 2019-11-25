@@ -14,6 +14,20 @@ def split_tol(test_list, tol):
         last = ele
     yield res
 
+def find_paranada_index(paranada_list, average_list):
+    max = 0
+    index = -1
+    for i in range(0,5):
+        for j in average_list:
+            for n in j:
+                paranada_np = np.asarray(paranada_list[i])
+                paranada = (np.abs(paranada_np - n) <= 2)
+                count = paranada.tolist().count(True)
+                if count > max:
+                    max = count
+                    index = i+1
+    return index
+
 kernel = np.ones((5, 5), np.uint8)
 
 # Import image from img folder
@@ -29,7 +43,8 @@ counts = np.sum(thresh == 255, axis=1)
 paranada = (np.abs(counts - 30) <= 5)
 indices = [i for i, x in enumerate(paranada) if x == True]
 print(indices)
-print(list(split_tol(indices,2)))
+group_paranada = list(split_tol(indices,2))
+print(group_paranada)
 
 # calculate where is the head of notes exist
 average = sum(counts)/50
@@ -37,7 +52,10 @@ print(average)
 check = (np.abs(counts - average) < 1)
 indices = [i for i, x in enumerate(check) if x == True]
 print(indices)
-print(list(split_tol(indices, 2)))
+group_average = list(split_tol(indices, 2))
+print(group_average)
+
+print("is: " + str(find_paranada_index(group_paranada, group_average)))
 
 # Print plot histogram
 # exit()
