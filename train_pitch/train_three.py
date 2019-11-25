@@ -51,9 +51,14 @@ def find_middle_factor(num):
     return find_middle(factors)
 
 # seed(1)
-learn_rate = 0.02
+learn_rate = 0.1
 n_epochs = 500
 n_codebooks = 5
+
+print("learning rate: " + str(learn_rate))
+print("epoch: " + str(n_epochs))
+print("class: " + str(n_codebooks))
+print()
 
 train_beats = LVQ()
 train_beats.set_n_codebooks(n_codebooks)
