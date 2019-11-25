@@ -25,7 +25,7 @@ def str_column_to_int(dataset, column):
 	for row in dataset:
 		row[column] = int(row[column])
 
-def findMiddle(input_list):
+def find_middle(input_list):
     middle = float(len(input_list))/2
     if middle % 2 != 0:
         return (input_list[int(middle + .5)], input_list[int(middle - .5)])
@@ -48,7 +48,7 @@ def find_middle_factor(num):
     if count == 1:
         return (factors[0], factors[0])
     
-    return findMiddle(factors)
+    return find_middle(factors)
 
 # seed(1)
 learn_rate = 0.02
