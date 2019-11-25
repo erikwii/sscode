@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 from matplotlib import pyplot as plt
+import threading
 
 # helper generator
 def split_tol(test_list, tol):
@@ -31,7 +32,7 @@ def find_paranada_index(paranada_list, average_list):
 kernel = np.ones((5, 5), np.uint8)
 
 # Import image from img folder
-img = cv2.imread('img/originals-resized/note-quarter-g1-1630.png',
+img = cv2.imread('img/originals-resized/note-quarter-h1-772.png',
                  cv2.IMREAD_GRAYSCALE)
 thresh = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
                                cv2.THRESH_BINARY_INV, 11, 2)
@@ -60,8 +61,8 @@ print("is: " + str(find_paranada_index(group_paranada, group_average)))
 # Print plot histogram
 # exit()
 y = range(49,-1,-1)
-plt.plot(counts,y)
-plt.show()
+# plt.plot(counts,y)
+# plt.show()
 # exit()
 # plt.hist(thresh.ravel(),256,[0,256]); plt.show()
 
@@ -71,6 +72,13 @@ height = int(thresh.shape[0] * scale_percent / 100)
 dim = (width, height)
 # resize image
 resized = cv2.resize(thresh, dim, interpolation=cv2.INTER_AREA)
+
+def show_plot():    
+    plt.plot(counts, y)
+    plt.show()
+
+thread1 = threading.Thread(target=show_plot)
+thread1.start()
 
 cv2.imshow('gray', resized)
 cv2.waitKey(0)
