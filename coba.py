@@ -32,7 +32,7 @@ def find_paranada_index(paranada_list, average_list):
 kernel = np.ones((5, 5), np.uint8)
 
 # Import image from img folder
-img = cv2.imread('img/originals-resized/note-quarter-h1-772.png',
+img = cv2.imread('img/originals-resized/note-quarter-e2-23.png',
                  cv2.IMREAD_GRAYSCALE)
 thresh = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
                                cv2.THRESH_BINARY_INV, 11, 2)
@@ -73,7 +73,7 @@ dim = (width, height)
 # resize image
 resized = cv2.resize(thresh, dim, interpolation=cv2.INTER_AREA)
 
-def show_plot():    
+def show_plot():
     plt.plot(counts, y)
     plt.show()
 

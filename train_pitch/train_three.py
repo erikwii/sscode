@@ -51,9 +51,9 @@ def find_middle_factor(num):
     return find_middle(factors)
 
 # seed(1)
-learn_rate = 0.1
+learn_rate = 0.05
 n_epochs = 500
-n_codebooks = 5
+n_codebooks = 9
 
 print("learning rate: " + str(learn_rate))
 print("epoch: " + str(n_epochs))
@@ -143,18 +143,3 @@ for i in range(len(wrong_data_test)):
 plt.show()
 
 exit()
-for codebook in codebooks:
-	print(codebook[-1])
-predictions = list()
-for row in test_set:
-	output = predict(codebooks, row)
-	predictions.append(output)
-
-actual = [row[-1] for row in test_set]
-accuracy = accuracy_metric(actual, predictions)
-scores = accuracy
-
-accuracy = str(scores)
-# os.rename('codebooks.csv', 'codebooks('+accuracy+').csv')
-print('\nScores: %s' % scores)
-# print('Mean Accuracy: %.3f%%' % (sum(scores)/float(len(scores))))
