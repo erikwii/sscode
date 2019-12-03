@@ -51,8 +51,8 @@ def find_middle_factor(num):
     return find_middle(factors)
 
 # seed(1)
-learn_rate = 0.05
-n_epochs = 500
+learn_rate = 0.5
+n_epochs = 100
 n_codebooks = 9
 
 print("learning rate: " + str(learn_rate))
@@ -66,27 +66,37 @@ train_beats.set_n_codebooks(n_codebooks)
 # load and prepare data train
 filename = 'train_three.csv'
 train_beats.load_csv(filename, 'train')
+for i in range(len(train_beats.data_train[0])-1):
+    if i != 5:
+        train_beats.min_max_normalize(train_beats.data_train, i, 0, 50)
+    else:
+        train_beats.min_max_normalize(train_beats.data_train, i, 0, 30)
 
 # load and prepare data test
 filename = 'test_three.csv'
 train_beats.load_csv(filename, 'test')
+for i in range(len(train_beats.data_test[0])-1):
+    if i != 5:
+        train_beats.min_max_normalize(train_beats.data_test, i, 0, 50)
+    else:
+        train_beats.min_max_normalize(train_beats.data_test, i, 0, 30)
 
 train_beats.train_codebooks(learn_rate, n_epochs)
 
 print("class codebooks: ", end="")
 print([row[-1] for row in train_beats.codebooks])
 
-score, wrong_data = train_beats.accuracy_metric('train')
-score_test, wrong_data_test = train_beats.accuracy_metric('test')
+score, wrong_data, actual, predictions = train_beats.accuracy_metric('train')
+score_test, wrong_data_test, actual_test, predictions_test = train_beats.accuracy_metric('test')
 
 print("===============train==============")
-print("score: " + str(score) + "%")
+print("score: " + str(round(score, 3)) + "%")
 print("\n")
 print("wrong data: ", end="")
 print(wrong_data)
 
 print("\n===============test===============")
-print("score test: " + str(score_test) + "%")
+print("score test: " + str(round(score_test, 3)) + "%")
 print("\n")
 print("wrong data test: ", end="")
 print(wrong_data_test)

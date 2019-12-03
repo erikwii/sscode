@@ -32,7 +32,7 @@ def find_paranada_index(paranada_list, average_list):
 kernel = np.ones((5, 5), np.uint8)
 
 # Import image from img folder
-img = cv2.imread('img/originals-resized/note-quarter-e2-23.png',
+img = cv2.imread('img/originals-resized/note-eighth-f2-1533.png',
                  cv2.IMREAD_GRAYSCALE)
 thresh = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
                                cv2.THRESH_BINARY_INV, 11, 2)
@@ -50,7 +50,7 @@ print(group_paranada)
 # calculate where is the head of notes exist
 average = sum(counts)/50
 print(average)
-check = (np.abs(counts - average) < 1)
+check = (np.abs(counts - average) < 2)
 indices = [i for i, x in enumerate(check) if x == True]
 print(indices)
 group_average = list(split_tol(indices, 2))
