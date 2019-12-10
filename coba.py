@@ -60,7 +60,6 @@ print("is: " + str(find_paranada_index(group_paranada, group_average)))
 
 # Print plot histogram
 # exit()
-y = range(49,-1,-1)
 # plt.plot(counts,y)
 # plt.show()
 # exit()
@@ -74,6 +73,7 @@ dim = (width, height)
 resized = cv2.resize(thresh, dim, interpolation=cv2.INTER_AREA)
 
 def show_plot():
+    y = range(49, -1, -1)
     plt.plot(counts, y)
     plt.show()
 
