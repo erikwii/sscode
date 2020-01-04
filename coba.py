@@ -32,31 +32,36 @@ def find_paranada_index(paranada_list, average_list):
 kernel = np.ones((5, 5), np.uint8)
 
 # Import image from img folder
-img = cv2.imread('img/originals-resized/note-eighth-f2-1533.png',
+img = cv2.imread('img/originals-resized/note-eighth-a1-2151.png',
                  cv2.IMREAD_GRAYSCALE)
 thresh = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
                                cv2.THRESH_BINARY_INV, 11, 2)
 
 # calculating histogram each row of image
 counts = np.sum(thresh == 255, axis=1)
+max_hist = max(counts)
 
 # check the index row of the paranada exist
-paranada = (np.abs(counts - 30) <= 5)
+paranada = (np.abs(counts - max_hist) <= 2)
 indices = [i for i, x in enumerate(paranada) if x == True]
+print("Paranada: ", end="")
 print(indices)
 group_paranada = list(split_tol(indices,2))
+print("Group of Paranada: ", end="")
 print(group_paranada)
 
 # calculate where is the head of notes exist
 average = sum(counts)/50
-print(average)
+print("\nAvrg hist value: " + str(average))
 check = (np.abs(counts - average) < 2)
 indices = [i for i, x in enumerate(check) if x == True]
+print("Average point: ", end="")
 print(indices)
 group_average = list(split_tol(indices, 2))
+print("Group of avrg point: ", end="")
 print(group_average)
 
-print("is: " + str(find_paranada_index(group_paranada, group_average)))
+print("\nin line: " + str(find_paranada_index(group_paranada, group_average)))
 
 # Print plot histogram
 # exit()
