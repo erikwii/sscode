@@ -6,16 +6,16 @@ from matplotlib import pyplot as plt
 import importlib
 
 import helper
-from group_half import *
+from group_eighth import *
 
-train_three = open("train_half.csv", "w")
+train_three = open("train_eighth.csv", "w")
 class_column = 0
 for note in pitch:
 
     class_counter = 0
     for i in note:
-        # print(dataset_path + i)
-        img = cv2.imread(dataset_path + i, cv2.IMREAD_GRAYSCALE)
+        print(i)
+        img = cv2.imread(dataset_path + "..\\originals-resized\\" + i, cv2.IMREAD_GRAYSCALE)
         thresh = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
                                         cv2.THRESH_BINARY_INV, 11, 2)
         # calculating histogram each row of image
@@ -36,7 +36,7 @@ for note in pitch:
 
         # Check if there's dataset anomali
         if len(group_paranada) < 5:
-            print(i)
+            # print(i)
             scale_percent = 500  # percent of original size
             width = int(thresh.shape[1] * scale_percent / 100)
             height = int(thresh.shape[0] * scale_percent / 100)
@@ -46,6 +46,7 @@ for note in pitch:
             cv2.imshow('gray', resized)
             cv2.waitKey(0)
             y = range(49, -1, -1)
+            plt.title(i)
             plt.plot(counts, y)
             plt.show()
             
@@ -69,6 +70,8 @@ for note in pitch:
         train_three.write(str(class_column) + "\n")
 
         class_counter += 1
+        if class_counter == 6:
+            break
 
     class_column += 1
 
@@ -76,13 +79,14 @@ train_three.close()
 
 # ===============================================================
 
-test_three = open("test_half.csv", "w")
+test_three = open("test_eighth.csv", "w")
 class_column = 0
 for note in test_pitch:
 
     class_counter = 0
     for i in note:
-        img = cv2.imread(dataset_path + i, cv2.IMREAD_GRAYSCALE)
+        print(i)
+        img = cv2.imread(dataset_path + "..\\originals-resized\\" + i, cv2.IMREAD_GRAYSCALE)
         thresh = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
                                         cv2.THRESH_BINARY_INV, 11, 2)
         

@@ -32,7 +32,7 @@ def find_paranada_index(paranada_list, average_list):
 kernel = np.ones((5, 5), np.uint8)
 
 # Import image from img folder
-img = cv2.imread('img/originals-resized/note-eighth-a1-2151.png',
+img = cv2.imread('img/originals-resized/note-eighth-f1-1518.png',
                  cv2.IMREAD_GRAYSCALE)
 thresh = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
                                cv2.THRESH_BINARY_INV, 11, 2)
@@ -40,6 +40,8 @@ thresh = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
 # calculating histogram each row of image
 counts = np.sum(thresh == 255, axis=1)
 max_hist = max(counts)
+counts_col = np.sum(thresh == 255, axis=0)
+print(counts_col)
 
 # check the index row of the paranada exist
 paranada = (np.abs(counts - max_hist) <= 2)
@@ -79,8 +81,22 @@ resized = cv2.resize(thresh, dim, interpolation=cv2.INTER_AREA)
 
 def show_plot():
     y = range(49, -1, -1)
+    plt.subplot(1,2,1)
     plt.plot(counts, y)
+    plt.title('Row')
+
+    plt.subplot(1,2,2)
+    x = range(30)
+    plt.plot(x, counts_col)
+    plt.title('Col')
+
     plt.show()
+
+def show_plot_col():
+    aplt = plt
+    x = range(30)
+    aplt.plot(x, counts_col)
+    aplt.show()
 
 thread1 = threading.Thread(target=show_plot)
 thread1.start()
