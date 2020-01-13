@@ -36,7 +36,7 @@ def find_paranada_index(paranada_list, average_list):
 kernel = np.ones((5, 5), np.uint8)
 
 # Import image from img folder
-img = cv2.imread('img/originals-resized/note-half-a1-128.png',
+img = cv2.imread('../img/originals-resized/note-eighth-f1-1518.png',
                  cv2.IMREAD_GRAYSCALE)
 thresh = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
                                cv2.THRESH_BINARY_INV, 11, 2)
@@ -56,7 +56,7 @@ print(average_col)
 # check the index row of the paranada exist
 paranada = (np.abs(counts - max_hist) <= 2)
 indices = [i for i, x in enumerate(paranada) if x == True]
-print("\nParanada: ", end="")
+print("Paranada: ", end="")
 print(indices)
 group_paranada = list(split_tol(indices, 2))
 print("Group of Paranada: ", end="")
