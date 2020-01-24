@@ -4,8 +4,6 @@ from matplotlib import pyplot as plt
 import threading
 
 # helper generator
-
-
 def split_tol(test_list, tol):
     res = []
     last = test_list[0]
@@ -16,7 +14,6 @@ def split_tol(test_list, tol):
         res.append(ele)
         last = ele
     yield res
-
 
 def find_paranada_index(paranada_list, average_list):
     max = 0
@@ -32,12 +29,25 @@ def find_paranada_index(paranada_list, average_list):
                     index = i+1
     return index
 
+def min_max_normalize(data, min=0, max=100):
+    return round((data - min) / (max - min), 3)
 
 kernel = np.ones((5, 5), np.uint8)
 
 # Import image from img folder
-img = cv2.imread('img/originals-resized/note-half-a1-128.png',
+img = cv2.imread('img/originals-resized/note-quarter-g1-977.png',
                  cv2.IMREAD_GRAYSCALE)
+f = open("note-quarter-g1-977.txt", "w")
+for row in img:
+    s = ""
+    for d in row:
+        normal = min_max_normalize(d, 0, 255)
+        if d != 255 and d != 0:
+            s += (str(normal) + "\t")
+        else:
+            s += (str(normal) + "\t\t")
+    f.write(s+"\n")
+f.close()
 thresh = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
                                cv2.THRESH_BINARY_INV, 11, 2)
 
