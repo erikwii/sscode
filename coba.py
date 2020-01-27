@@ -35,8 +35,11 @@ def min_max_normalize(data, min=0, max=100):
 kernel = np.ones((5, 5), np.uint8)
 
 # Import image from img folder
-img = cv2.imread('img/originals-resized/note-quarter-g1-977.png',
+img_name = 'note-quarter-g1-977.png'
+img = cv2.imread('img/originals-resized/' + img_name,
                  cv2.IMREAD_GRAYSCALE)
+thresh_normal = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_MEAN_C,
+                               cv2.THRESH_BINARY, 11, 2)
 f = open("note-quarter-g1-977.txt", "w")
 for row in img:
     s = ""
@@ -48,7 +51,7 @@ for row in img:
             s += (str(normal) + "\t\t")
     f.write(s+"\n")
 f.close()
-thresh = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+thresh = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_MEAN_C,
                                cv2.THRESH_BINARY_INV, 11, 2)
 
 # calculating histogram each row of image
@@ -98,18 +101,19 @@ height = int(thresh.shape[0] * scale_percent / 100)
 dim = (width, height)
 # resize image
 resized = cv2.resize(thresh, dim, interpolation=cv2.INTER_AREA)
-
+resized_thresh = cv2.resize(thresh_normal, dim, interpolation=cv2.INTER_AREA)
+resized_img = cv2.resize(img, dim, interpolation=cv2.INTER_AREA)
 
 def show_plot():
     y = range(49, -1, -1)
     plt.subplot(1, 2, 1)
     plt.plot(counts, y)
-    plt.title('Row')
+    plt.title(img_name + ' (Row)')
 
     plt.subplot(1, 2, 2)
     x = range(30)
     plt.plot(x, counts_col)
-    plt.title('Col')
+    plt.title(img_name + ' (Col)')
 
     plt.show()
 
@@ -120,11 +124,18 @@ def show_plot_col():
     aplt.plot(x, counts_col)
     aplt.show()
 
+numpy_horizontal = np.hstack((resized_img, resized_thresh))
+numpy_horizontal = np.hstack((numpy_horizontal, resized))
 
 thread1 = threading.Thread(target=show_plot)
 thread1.start()
 
-cv2.imshow('gray', resized)
+cv2.imwrite(img_name + " (binary inverted)", resized)
+
+cv2.imshow(img_name, numpy_horizontal)
+cv2.imshow('Citra Biner', resized)
+
+plt.title(img_name); plt.hist(img.ravel(),256,[0,256]); plt.show()
 cv2.waitKey(0)
 
 exit()

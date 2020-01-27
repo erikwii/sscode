@@ -32,12 +32,12 @@ class LVQ:
 
         # shuffle(dataset)
 
-        if t is 'train':
+        if t == 'train':
             self.data_train = dataset
 
             if self.n_codebooks > 0:
                 self.random_codebooks()
-        elif t is 'test':
+        elif t == 'test':
             self.data_test = dataset
         else:
             print("Hanya menerima string 'train' atau 'test' untuk tipe dataset")
@@ -61,13 +61,13 @@ class LVQ:
         
         # shuffle(dataset)
 
-        if t is 'train':
+        if t == 'train':
             self.data_train = dataset
 
             if self.n_codebooks > 0:
                 self.random_codebooks()
 
-        elif t is 'test':
+        elif t == 'test':
             self.data_test = dataset
         else:
             print("Hanya menerima string 'train' atau 'test' untuk tipe dataset")
@@ -152,9 +152,9 @@ class LVQ:
     def accuracy_metric(self, t='train'):
         correct = 0
 
-        if t is 'train':
+        if t == 'train':
             data = self.data_train
-        elif t is 'test':
+        elif t == 'test':
             data = self.data_test
         else:
             print("Hanya menerima string 'train' atau 'test' untuk tipe dataset")
