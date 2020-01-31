@@ -71,7 +71,9 @@ train_beats.load_csv(filename, 'train')
 filename = 'test_three.csv'
 train_beats.load_csv(filename, 'test')
 
+start_time = time.time()
 train_beats.train_codebooks(learn_rate, n_epochs)
+print("--- %s seconds ---" % (time.time() - start_time))
 
 print("class codebooks: ", end="")
 print([row[-1] for row in train_beats.codebooks])

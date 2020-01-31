@@ -38,7 +38,7 @@ kernel = np.ones((5, 5), np.uint8)
 img_name = 'note-quarter-g1-977.png'
 img = cv2.imread('img/originals-resized/' + img_name,
                  cv2.IMREAD_GRAYSCALE)
-thresh_normal = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_MEAN_C,
+thresh_normal = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
                                cv2.THRESH_BINARY, 11, 2)
 f = open("note-quarter-g1-977.txt", "w")
 for row in img:
@@ -51,7 +51,8 @@ for row in img:
             s += (str(normal) + "\t\t")
     f.write(s+"\n")
 f.close()
-thresh = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_MEAN_C,
+otsu = cv2.threshold(img,0,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)[1]
+thresh = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
                                cv2.THRESH_BINARY_INV, 11, 2)
 
 # calculating histogram each row of image
@@ -103,6 +104,7 @@ dim = (width, height)
 resized = cv2.resize(thresh, dim, interpolation=cv2.INTER_AREA)
 resized_thresh = cv2.resize(thresh_normal, dim, interpolation=cv2.INTER_AREA)
 resized_img = cv2.resize(img, dim, interpolation=cv2.INTER_AREA)
+resized_otsu = cv2.resize(otsu, dim, interpolation=cv2.INTER_AREA)
 
 def show_plot():
     y = range(49, -1, -1)
@@ -130,10 +132,10 @@ numpy_horizontal = np.hstack((numpy_horizontal, resized))
 thread1 = threading.Thread(target=show_plot)
 thread1.start()
 
-cv2.imwrite(img_name + " (binary inverted)", resized)
+# cv2.imwrite(img_name + " (binary inverted)", resized)
 
 cv2.imshow(img_name, numpy_horizontal)
-cv2.imshow('Citra Biner', resized)
+cv2.imshow('Citra Otsu', resized_otsu)
 
 plt.title(img_name); plt.hist(img.ravel(),256,[0,256]); plt.show()
 cv2.waitKey(0)

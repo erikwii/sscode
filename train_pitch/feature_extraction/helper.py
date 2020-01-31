@@ -1,3 +1,5 @@
+from matplotlib import pyplot as plt
+
 # helper generator
 def split_tol(test_list, tol):
     res = []
@@ -29,6 +31,21 @@ def str_column_to_int(dataset, column):
 	for row in dataset:
 		row[column] = int(row[column])
 
+def standar_deviation(array):
+    for i in range(len(array)):
+        array[i]=int(array[i])
+    jumlah=0
+    for i in range(len(array)):
+        jumlah +=array[i]
+    rata=jumlah/len(array)
+    sigma = 0
+    for i in range(len(array)):
+        hitung =(array[i]-rata)**2
+        sigma += hitung
+    pembagianN=sigma/len(array)
+    standarDeviasi=pembagianN ** 0.5
+    
+    return standarDeviasi
 
 def find_middle(input_list):
     middle = float(len(input_list))/2
@@ -55,3 +72,31 @@ def find_middle_factor(num):
         return (factors[0], factors[0])
 
     return find_middle(factors)
+
+# Showing plot
+def show_plot(img_name, counts, counts_col=""):
+    y = range(49, -1, -1)
+    plt.subplot(1, 2, 1)
+    plt.plot(counts, y)
+    plt.title(img_name + ' (Row)')
+
+    if counts_col != "":
+        plt.subplot(1, 2, 2)
+        x = range(30)
+        plt.plot(x, counts_col)
+        plt.title(img_name + ' (Col)')
+
+    plt.show()
+
+def show_non_paranada_plot(img_name, counts, non_paranada):
+    y = range(49, -1, -1)
+    plt.subplot(1, 2, 1)
+    plt.plot(counts, y)
+    plt.title(img_name + ' (paranada)')
+
+    # y = range(49, -1, -1)
+    plt.subplot(1, 2, 2)
+    plt.plot(non_paranada, y)
+    plt.title(img_name + ' (non paranada)')
+
+    plt.show()
