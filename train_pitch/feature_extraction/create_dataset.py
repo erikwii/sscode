@@ -1,4 +1,5 @@
 import random
+import math
 import glob
 import os
 import cv2
@@ -47,6 +48,7 @@ def create_csv(**kwargs):
 
     if type == 'all' or type == 'train':
         train_data = open("train_"+ identifier +".csv", "w")
+        train_info = open("train_"+ identifier +"_info.csv", "w")
         class_column = 0
         for note in train_group:
 
@@ -64,81 +66,26 @@ def create_csv(**kwargs):
                                                 cv2.THRESH_BINARY_INV, 11, 2)
                 
                 # calculating histogram each row of image
-                counts = np.sum(thresh == 255, axis=1)
-                max_hist = max(counts)
+                hist = np.sum(thresh == 255, axis=1)
                 
                 # check the index row of the paranada exist
-                mean = np.mean(counts)
-                std = np.std(counts)
-                stat_z = [(s-mean)/std for s in counts]
-                paranada = (np.abs(stat_z) > 2)
-                indices = [i for i, x in enumerate(paranada) if x == True]
-                if indices == []:
-                    paranada = (np.abs(np.abs(counts - max_hist) <= 2))
-                    indices = [i for i, x in enumerate(paranada) if x == True]
-                    
-                    log_message = "WARNING: Failed to get outlier of " + i
-                    helper.write_log('dataset', '4', log_message)
-                    # helper.show_plot(i, counts, "")
-                group_paranada = list(helper.split_tol(indices,2))
-                paranada_index = [i[0] for i in group_paranada]
-                if len(paranada_index) < 5:
-                    log_message = "FATAL ERROR: Paranada index of " + i + " is not completely detected"
-                    helper.write_log('dataset', '1', log_message)
-                    print("Something error, please check dataset.log!")
+                paranada, group_paranada, paranada_index = detect_paranada(hist, i)
 
                 # remove paranada
-                non_paranada = list()
-                j = 0
-                for x in paranada:
-                    if x == True:
-                        if j > 0 and j < len(paranada)-1:
-                            mean = (counts[j-1]+counts[j+1])/2
-                        elif j == 0:
-                            mean = (counts[j+1])
-                        elif j == len(paranada)-1:
-                            mean = counts[j-1]
-                        non_paranada.append(mean)
-                    else :
-                        non_paranada.append(counts[j])
-                    j += 1
+                non_paranada = remove_paranada(paranada, hist)
+                non_paranada = remove_outlier(non_paranada)
 
-                # calculate average of counts (head of notes position)
-                average = np.mean(counts)
-                
-                # mean = np.mean(non_paranada)
-                # std = np.std(non_paranada)
-                # stat_z = [(s - mean)/std for s in non_paranada]
-                # old check
-                # check = (np.abs(counts - average) <= 2)
-                # check = np.abs(stat_z) > 2
-                # indices = [i for i, x in enumerate(check) if x == True]
-                # group_average = list(helper.split_tol(indices,2))
-                # average_index = sum(indices)/len(indices)
-                # print(group_average)
-                # print(average_index)
-                # print()
+                # calculate average of hist (head of notes position)
+                average = np.mean(hist)
                 
                 length_area = kwargs.get('length_area', 5)
 
-                area = 0
-                index_area = 0
-                for c in range(len(non_paranada) - (length_area - 1)):
-                    y_vals = non_paranada[c:c+length_area]
-                    this_area = helper.integrate(y_vals, (length_area - 1))
-                    if area < this_area:
-                        index_area = c + (length_area/2)
-                        area = this_area
+                index_area = detect_head(non_paranada, length_area)
                 
-                # helper.show_non_paranada_plot(i, counts, non_paranada)
-
-                # printable = {}
-                # printable["average"] = average
-                # printable["average_index"] = average_index
-                # printable["paranada"] = paranada
-                # printable["paranada_index"] = paranada_index
-                # print(printable)
-                # exit()
+                train_info.write(i + "\n")
+                # print(i)
+                # print(index_area)
+                # helper.show_non_paranada_plot(i, hist, non_paranada)
 
                 # inserting feature to csv file
                 for paranada in paranada_index:
@@ -158,6 +105,7 @@ def create_csv(**kwargs):
             class_column += 1
 
         train_data.close()
+        train_info.close()
 
     # ===============================================================
 
@@ -169,6 +117,8 @@ def create_csv(**kwargs):
             class_counter = 0
             for i in note:
                 img = cv2.imread(dataset_path + i, cv2.IMREAD_GRAYSCALE)
+                
+                
 
                 thresh_method = kwargs.get('thresh_method', "gaussian")
                 if thresh_method == 'mean':
@@ -180,81 +130,23 @@ def create_csv(**kwargs):
                                                 cv2.THRESH_BINARY_INV, 11, 2)
                 
                 # calculating histogram each row of image
-                counts = np.sum(thresh == 255, axis=1)
-                max_hist = max(counts)
+                hist = np.sum(thresh == 255, axis=1)
                 
                 # check the index row of the paranada exist
-                mean = np.mean(counts)
-                std = np.std(counts)
-                stat_z = [(s-mean)/std for s in counts]
-                paranada = (np.abs(stat_z) > 2)
-                indices = [i for i, x in enumerate(paranada) if x == True]
-                if indices == []:
-                    paranada = (np.abs(np.abs(counts - max_hist) <= 2))
-                    indices = [i for i, x in enumerate(paranada) if x == True]
+                paranada, group_paranada, paranada_index = detect_paranada(hist, i)
 
-                    log_message = "WARNING: Failed to get outlier of " + i
-                    helper.write_log('dataset', '4', log_message)
-                    # helper.show_plot(i, counts, "")
-                group_paranada = list(helper.split_tol(indices,2))
-                paranada_index = [i[0] for i in group_paranada]
-                if len(paranada_index) < 5:
-                    log_message = "FATAL ERROR: Paranada index of " + i + " is not completely detected"
-                    helper.write_log('dataset', '1', log_message)
-                    print("Something error, please check dataset.log!")
-                
                 # remove paranada
-                non_paranada = list()
-                j = 0
-                for x in paranada:
-                    if x == True:
-                        if j > 0 and j < len(paranada)-1:
-                            mean = (counts[j-1]+counts[j+1])/2
-                        elif j == 0:
-                            mean = (counts[j+1])
-                        elif j == len(paranada)-1:
-                            mean = counts[j-1]
-                        non_paranada.append(mean)
-                    else :
-                        non_paranada.append(counts[j])
-                    j += 1
+                non_paranada = remove_paranada(paranada, hist)
+                non_paranada = remove_outlier(non_paranada)
 
-                # calculate average of counts (head of notes position)
-                average = np.mean(counts)
-                
-                # mean = np.mean(non_paranada)
-                # std = np.std(non_paranada)
-                # stat_z = [(s - mean)/std for s in non_paranada]
-                # old check
-                # check = (np.abs(counts - average) <= 2)
-                # check = np.abs(stat_z) > 2
-                # indices = [i for i, x in enumerate(check) if x == True]
-                # group_average = list(helper.split_tol(indices,2))
-                # average_index = sum(indices)/len(indices)
-                # print(group_average)
-                # print(average_index)
-                # print()
+                # calculate average of hist (head of notes position)
+                average = np.mean(hist)
                 
                 length_area = kwargs.get('length_area', 5)
 
-                area = 0
-                index_area = 0
-                for c in range(len(non_paranada) - (length_area - 1)):
-                    y_vals = non_paranada[c:c+length_area]
-                    this_area = helper.integrate(y_vals, (length_area - 1))
-                    if area < this_area:
-                        index_area = c + (length_area/2)
-                        area = this_area
+                index_area = detect_head(non_paranada, length_area)
                 
-                # helper.show_non_paranada_plot(i, counts, non_paranada)
-
-                # printable = {}
-                # printable["average"] = average
-                # printable["average_index"] = average_index
-                # printable["paranada"] = paranada
-                # printable["paranada_index"] = paranada_index
-                # print(printable)
-                # exit()
+                # helper.show_non_paranada_plot(i, hist, non_paranada)
 
                 # inserting feature to csv file
                 for paranada in paranada_index:
@@ -314,16 +206,10 @@ def create_beats_csv(**kwargs):
                 thresh = cv2.adaptiveThreshold(img, 255, thresh_cv,
                                                 cv2.THRESH_BINARY_INV, 11, 2)
                 # calculating histogram each col of image
-                counts_col = np.sum(thresh == 255, axis=0)
-                max_level = max(counts_col)
-                min_level = min(counts_col)
-                average_col = sum(counts_col)/30
+                hist_col = np.sum(thresh == 255, axis=0)
                 
-                for c in counts_col:
+                for c in hist_col:
                     train_data.write(str(c) + ", ")
-                # train_data.write(str(min_level) + ", ")
-                # train_data.write(str(max_level) + ", ")
-                # train_data.write(str(average_col) + ", ")
 
                 train_data.write(str(class_column) + "\n")
                 
@@ -347,6 +233,8 @@ def create_beats_csv(**kwargs):
             class_counter = 0
             for i in note:
                 img = cv2.imread(dataset_path + i, cv2.IMREAD_GRAYSCALE)
+                
+                
 
                 thresh_method = kwargs.get('thresh_method', "gaussian")
                 if thresh_method == 'mean':
@@ -358,12 +246,9 @@ def create_beats_csv(**kwargs):
                                                 cv2.THRESH_BINARY_INV, 11, 2)
                 
                 # calculating histogram each col of image
-                counts_col = np.sum(thresh == 255, axis=0)
-                max_level = max(counts_col)
-                min_level = min(counts_col)
-                average_col = sum(counts_col)/30
+                hist_col = np.sum(thresh == 255, axis=0)
 
-                for c in counts_col:
+                for c in hist_col:
                     test_data.write(str(c) + ", ")
                 # test_data.write(str(min_level) + ", ")
                 # test_data.write(str(max_level) + ", ")
@@ -379,105 +264,102 @@ def create_beats_csv(**kwargs):
 
         test_data.close()
 
+def noise_reduction(img):
+    # convert all to float64
+    img = np.float64(img)
+    # create a noise of variance 25
+    noise = np.random.randn(*img.shape)*10
+    # Add this noise to images
+    noisy = img+noise
+    # Convert back to uint8
+    noisy = np.uint8(np.clip(img,0,255))
+    # Denoise 3rd frame considering all the 5 frames
+    dst = cv2.fastNlMeansDenoising(noisy)
 
+    return dst
 
+def detect_paranada(hist, filename):
+    mean = np.mean(hist)
+    std = np.std(hist)
+    stat_z = [(s-mean)/std for s in hist]
+    
+    paranada = (np.abs(stat_z) > 2)
+    indices = [i for i, x in enumerate(paranada) if x == True]
+    
+    if indices == []:
+        max_hist = max(hist)
 
+        paranada = (np.abs(np.abs(hist - max_hist) <= 2))
+        indices = [i for i, x in enumerate(paranada) if x == True]
 
+        log_message = "WARNING: Failed to get outlier of " + filename
+        helper.write_log('dataset', '4', log_message)
+        # helper.show_plot(i, hist, "")
+    
+    group_paranada = list(helper.split_tol(indices,2))
+    paranada_index = [i[0] for i in group_paranada]
 
+    if len(paranada_index) < 5:
+        log_message = "FATAL ERROR: Paranada index of " + filename + " is not completely detected"
+        helper.write_log('dataset', '1', log_message)
+        print("Something error, please check dataset.log!")
+    
+    return paranada, group_paranada, paranada_index
 
-# train_three = open("train_three.csv", "w")
-# class_column = 0
-# for note in pitch:
+def remove_paranada(paranada, hist):
+    non_paranada = list()
+    j = 0
+    for x in paranada:
+        if x == True:
+            if j > 0 and j < len(paranada)-1:
+                if paranada[j+1] == True:
+                    mean = (hist[j-1]+hist[j+2])/2
+                elif paranada[j-1] == True:
+                    mean = (hist[j-2]+hist[j+1])/2
+                else:
+                    mean = (hist[j-1]+hist[j+1])/2
+            elif j == 0:
+                if paranada[j+1] == True:
+                    mean = hist[j+2]
+                else:
+                    mean = hist[j+1]
+            elif j == len(paranada)-1:
+                if paranada[j-1] == True:
+                    mean = hist[j-2]
+                else:
+                    mean = hist[j-1]
+            non_paranada.append(mean)
+        else :
+            non_paranada.append(hist[j])
+        j += 1
 
-#     class_counter = 0
-#     for i in note:
-#         img = cv2.imread(dataset_path + i, cv2.IMREAD_GRAYSCALE)
-#         thresh = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-#                                         cv2.THRESH_BINARY_INV, 11, 2)
-#         # calculating histogram each row of image
-#         counts = np.sum(thresh == 255, axis=1)
-#         max_hist = max(counts)
-#         # helper.show_plot(i,counts, "")
+    return non_paranada
 
-#         # calculate average of counts (head of notes position)
-#         average = sum(counts)/50
-#         check = (np.abs(counts - average) <= 2)
-#         indices = [i for i, x in enumerate(check) if x == True]
-#         group_average = list(helper.split_tol(ind ices,2))
-#         average_index = sum(indices)/len(indices)
+def remove_outlier(data):
+    mean = np.mean(data)
+    std = np.std(data)
+    stat_z = [(s-mean)/std for s in data]
+    
+    outlier = (np.abs(stat_z) > 2)
 
-#         # check the index row of the paranada exist
-#         paranada = (np.abs(counts - max_hist) <= 1)
-#         indices = [i for i, x in enumerate(paranada) if x == True]
-#         group_paranada = list(helper.split_tol(indices,2))
-#         paranada_index = [i[0] for i in group_paranada]
+    return remove_paranada(outlier, data)
 
-#         # printable = {}
-#         # printable["average"] = average
-#         # printable["average_index"] = average_index
-#         # printable["paranada"] = paranada
-#         # printable["paranada_index"] = paranada_index
-#         # print(printable)
-#         # exit()
+def detect_head(hist, length_area):
+    area = 0
+    index_area = 0
+    for c in range(len(hist) - (length_area - 1)):
+        y_vals = hist[c:c+length_area]
+        this_area = helper.integrate(y_vals, (length_area - 1))
+        if area < this_area:
+            index_area = c + (length_area/2)
+            area = this_area
 
-#         # inserting feature to csv file
-#         for paranada in paranada_index:
-#             train_three.write(str(paranada) + ", ")
-        
-#         train_three.write(str(average) + ", ")
-#         train_three.write(str(average_index) + ", ")
+    return index_area
 
-#         train_three.write(str(class_column) + "\n")
-
-#         class_counter += 1
-#         if class_counter == 4:
-#             break
-
-#     class_column += 1
-
-# train_three.close()
-
-# # ===============================================================
-
-# test_three = open("test_three.csv", "w")
-# class_column = 0
-# for note in test_pitch:
-
-#     class_counter = 0
-#     for i in note:
-#         img = cv2.imread(dataset_path + i, cv2.IMREAD_GRAYSCALE)
-#         thresh = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-#                                         cv2.THRESH_BINARY_INV, 11, 2)
-        
-#         # calculating histogram each row of image
-#         counts = np.sum(thresh == 255, axis=1)
-
-#         # calculate average of counts (head of notes position)
-#         average = sum(counts)/50
-#         check = (np.abs(counts - average) < 2)
-#         indices = [i for i, x in enumerate(check) if x == True]
-#         group_average = list(helper.split_tol(indices, 2))
-#         average_index = sum(indices)/len(indices)
-
-#         # check the index row of the paranada exist
-#         paranada = (np.abs(counts - 30) <= 5)
-#         indices = [i for i, x in enumerate(paranada) if x == True]
-#         group_paranada = list(helper.split_tol(indices, 2))
-#         paranada_index = [i[0] for i in group_paranada]
-
-#         # inserting feature to csv file
-#         for paranada in paranada_index:
-#             test_three.write(str(paranada) + ", ")
-
-#         test_three.write(str(average) + ", ")
-#         test_three.write(str(average_index) + ", ")
-
-#         test_three.write(str(class_column) + "\n")
-
-#         class_counter += 1
-
-#     class_column += 1
-
-# test_three.close()
-
+# printable = {}
+# printable["average"] = average
+# printable["average_index"] = average_index
+# printable["paranada"] = paranada
+# printable["paranada_index"] = paranada_index
+# print(printable)
 # exit()

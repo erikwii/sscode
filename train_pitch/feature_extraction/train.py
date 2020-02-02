@@ -87,7 +87,7 @@ print([row[-1] for row in train_beats.codebooks])
 
 score, wrong_data, actual, predictions = train_beats.accuracy_metric('train')
 
-print("===============train==============")
+print("===============train beats==============")
 print("score: " + str(round(score, 3)) + "%\n")
 print("wrong data: ", end="")
 print(wrong_data)
@@ -104,8 +104,8 @@ beats, beats_test, dataset_path = create_dataset.group_data_beats()
 # ======================== TRAINING WHOLE ===================== #
 # ============================================================= #
 
-learn_rate = 0.03
-n_epochs = 1000
+learn_rate = 0.05
+n_epochs = 2000
 n_codebooks = 9
 
 print("learning rate: " + str(learn_rate))
@@ -142,7 +142,7 @@ print([row[-1] for row in train_whole.codebooks])
 score, wrong_data, actual, predictions = train_whole.accuracy_metric('train')
 # score_test, wrong_data_test, actual_test, predictions_test = train_whole.accuracy_metric('test')
 
-print("===============train==============")
+print("===============train whole==============")
 print("score: " + str(round(score, 3)) + "%")
 print("\n")
 print("wrong data: ", end="")
@@ -179,36 +179,36 @@ print("epoch: " + str(n_epochs))
 print("class: " + str(n_codebooks))
 print()
 
-train_whole = LVQ()
-train_whole.set_n_codebooks(n_codebooks)
+train_half = LVQ()
+train_half.set_n_codebooks(n_codebooks)
 
 # load and prepare data train
-filename = 'train_whole.csv'
-train_whole.load_csv(filename, 'train')
-for i in range(len(train_whole.data_train[0])-1):
+filename = 'train_half.csv'
+train_half.load_csv(filename, 'train')
+for i in range(len(train_half.data_train[0])-1):
     if i != 5: # difference normalization for average value
-        train_whole.min_max_normalize(train_whole.data_train, i, 0, 50)
+        train_half.min_max_normalize(train_half.data_train, i, 0, 50)
     else:
-        train_whole.min_max_normalize(train_whole.data_train, i, 0, 30)
+        train_half.min_max_normalize(train_half.data_train, i, 0, 30)
 
 # load and prepare data test
-# filename = 'test_whole.csv'
-# train_whole.load_csv(filename, 'test')
-# for i in range(len(train_whole.data_test[0])-1):
+# filename = 'test_half.csv'
+# train_half.load_csv(filename, 'test')
+# for i in range(len(train_half.data_test[0])-1):
 #     if i != 5:
-#         train_whole.min_max_normalize(train_whole.data_test, i, 0, 50)
+#         train_half.min_max_normalize(train_half.data_test, i, 0, 50)
 #     else:
-#         train_whole.min_max_normalize(train_whole.data_test, i, 0, 30)
+#         train_half.min_max_normalize(train_half.data_test, i, 0, 30)
 
-train_whole.train_codebooks(learn_rate, n_epochs)
+train_half.train_codebooks(learn_rate, n_epochs)
 
 print("class codebooks: ", end="")
-print([row[-1] for row in train_whole.codebooks])
+print([row[-1] for row in train_half.codebooks])
 
-score, wrong_data, actual, predictions = train_whole.accuracy_metric('train')
-# score_test, wrong_data_test, actual_test, predictions_test = train_whole.accuracy_metric('test')
+score, wrong_data, actual, predictions = train_half.accuracy_metric('train')
+# score_test, wrong_data_test, actual_test, predictions_test = train_half.accuracy_metric('test')
 
-print("===============train==============")
+print("===============train half==============")
 print("score: " + str(round(score, 3)) + "%")
 print("\n")
 print("wrong data: ", end="")
@@ -220,14 +220,14 @@ print(wrong_data)
 # print("wrong data test: ", end="")
 # print(wrong_data_test)
 
-train_whole.export_codebooks("whole_codebooks")
+train_half.export_codebooks("half_codebooks")
 
-whole, whole_test, dataset_path = create_dataset.group_data("whole")
+half, half_test, dataset_path = create_dataset.group_data("half")
 
 # Show wrong data train image
-# helper.show_wrong_data(wrong_data, predictions, whole, dataset_path)
+helper.show_wrong_data(wrong_data, predictions, half, dataset_path)
 # exit()
 
 # Show wrong data test image
-# helper.show_wrong_data(wrong_data_test, predictions_test, whole_test, dataset_path)
+# helper.show_wrong_data(wrong_data_test, predictions_test, half_test, dataset_path)
 # exit()

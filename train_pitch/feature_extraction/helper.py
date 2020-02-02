@@ -137,11 +137,13 @@ def show_non_paranada_plot(img_name, counts, non_paranada):
     y = range(49, -1, -1)
     plt.subplot(1, 2, 1)
     plt.plot(counts, y)
+    plt.axis((0,30,0,50))
     plt.title(img_name + ' (paranada)')
-
+    
     # y = range(49, -1, -1)
     plt.subplot(1, 2, 2)
     plt.plot(non_paranada, y)
+    plt.axis((0,30,0,50))
     plt.title(img_name + ' (non paranada)')
 
     plt.show()
