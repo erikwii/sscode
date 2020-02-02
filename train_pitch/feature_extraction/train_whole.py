@@ -51,8 +51,8 @@ def find_middle_factor(num):
     return find_middle(factors)
 
 # seed(1)
-learn_rate = 0.3
-n_epochs = 300
+learn_rate = 0.05
+n_epochs = 1000
 n_codebooks = 9
 
 print("learning rate: " + str(learn_rate))

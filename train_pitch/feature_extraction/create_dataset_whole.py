@@ -20,50 +20,64 @@ for note in pitch:
         # calculating histogram each row of image
         counts = np.sum(thresh == 255, axis=1)
         max_hist = max(counts)
-        # helper.show_plot(i,counts, "")
-        print(counts)
-        non_paranada = list()
+        
         # check the index row of the paranada exist
         mean = np.mean(counts)
         std = np.std(counts)
         stat_z = [(s-mean)/std for s in counts]
         paranada = (np.abs(stat_z) > 2)
         indices = [i for i, x in enumerate(paranada) if x == True]
+        if indices == []:
+            print(i)
+            paranada = (np.abs(np.abs(counts - max_hist) <= 2))
+            indices = [i for i, x in enumerate(paranada) if x == True]
+            # helper.show_plot(i, counts, "")
+        group_paranada = list(helper.split_tol(indices,2))
+        paranada_index = [i[0] for i in group_paranada]
+        if len(paranada_index) < 5:
+            print(i)
+        
+        # remove paranada
+        non_paranada = list()
         j = 0
-        print(paranada)
         for x in paranada:
             if x == True:
-                non_paranada.append(min(counts))
+                if j > 0 and j < len(paranada)-1:
+                    mean = (counts[j-1]+counts[j+1])/2
+                elif j == 0:
+                    mean = (counts[j+1])
+                elif j == len(paranada)-1:
+                    mean = counts[j-1]
+                non_paranada.append(mean)
             else :
                 non_paranada.append(counts[j])
             j += 1
-        group_paranada = list(helper.split_tol(indices,2))
-        paranada_index = [i[0] for i in group_paranada]
-        print("paranada: ")
-        print(paranada_index)
 
         # calculate average of counts (head of notes position)
-        average = sum(counts)/50
-        tolerance = 2
-        mean = np.mean(non_paranada)
-        std = np.std(non_paranada)
-        stat_z = [(s - mean)/std for s in non_paranada]
-        check = (np.abs(counts - average) <= tolerance)
-        check = np.abs(stat_z) > 2
-        # print(check)
-        indices = [i for i, x in enumerate(check) if x == True]
-        print(i)
-        print(average)
-        print(non_paranada)
-        print(indices)
-        # if indices == [] or tolerance > 3:
-        group_average = list(helper.split_tol(indices,2))
-        average_index = sum(indices)/len(indices)
-        print("group_average: " + str(group_average))
-        print("average_index: " + str(average_index))
-        helper.show_non_paranada_plot(i, counts, non_paranada)
-        if class_counter == 2:
-            exit()
+        average = np.mean(counts)
+        # mean = np.mean(non_paranada)
+        # std = np.std(non_paranada)
+        # stat_z = [(s - mean)/std for s in non_paranada]
+        # old check
+        # check = (np.abs(counts - average) <= 2)
+        # check = np.abs(stat_z) > 2
+        # indices = [i for i, x in enumerate(check) if x == True]
+        # group_average = list(helper.split_tol(indices,2))
+        # average_index = sum(indices)/len(indices)
+        # print(group_average)
+        # print(average_index)
+        # print()
+        area = 0
+        index_area = 0
+        for c in range(len(non_paranada)-4):
+            y_vals = non_paranada[c:c+5]
+            this_area = helper.integrate(y_vals, 4)
+            if area < this_area:
+                index_area = c + 2
+                area = this_area
+        
+        # helper.show_non_paranada_plot(i, counts, non_paranada)
+
         # printable = {}
         # printable["average"] = average
         # printable["average_index"] = average_index
@@ -77,7 +91,7 @@ for note in pitch:
             train_whole.write(str(paranada) + ", ")
         
         train_whole.write(str(average) + ", ")
-        train_whole.write(str(average_index) + ", ")
+        train_whole.write(str(index_area) + ", ")
 
         train_whole.write(str(class_column) + "\n")
 

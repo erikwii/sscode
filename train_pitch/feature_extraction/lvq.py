@@ -10,6 +10,7 @@ import sys
 import time
 import threading
 import itertools
+import helper
 
 class LVQ:
     codebooks   = list()
@@ -71,6 +72,30 @@ class LVQ:
             self.data_test = dataset
         else:
             print("Hanya menerima string 'train' atau 'test' untuk tipe dataset")
+
+    def import_codebooks(self, filename):
+        dataset = list()
+        with open(filename, 'r') as file:
+            csv_reader = reader(file)
+            for row in csv_reader:
+                if not row:
+                    continue
+                dataset.append(row)
+
+        self.n_codebooks = len(csv_reader)
+        self.codebooks = dataset
+        msg = "Import codebooks vector from " + filename + " done successfully"
+        helper.write_log("dataset", '3', msg)
+
+    def export_codebooks(self, filename):
+        f = open(filename + ".csv", "w")
+        for codebook in self.codebooks:
+            for num in codebook[:-1]:
+                f.write(str(num) + ", ")
+            f.write(str(codebook[-1]) + "\n")
+        f.close()
+        msg = "Export codebooks vector to " + filename + ".csv done successfully"
+        helper.write_log("dataset", '3', msg)
 
     def set_n_codebooks(self, n):
         self.n_codebooks = n
