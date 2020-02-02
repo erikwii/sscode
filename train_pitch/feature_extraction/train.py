@@ -225,9 +225,75 @@ train_half.export_codebooks("half_codebooks")
 half, half_test, dataset_path = create_dataset.group_data("half")
 
 # Show wrong data train image
-helper.show_wrong_data(wrong_data, predictions, half, dataset_path)
+# helper.show_wrong_data(wrong_data, predictions, half, dataset_path)
 # exit()
 
 # Show wrong data test image
 # helper.show_wrong_data(wrong_data_test, predictions_test, half_test, dataset_path)
+# exit()
+
+# ============================================================= #
+# ====================== TRAINING QUARTER ===================== #
+# ============================================================= #
+
+learn_rate = 0.03
+n_epochs = 1000
+n_codebooks = 9
+
+print("learning rate: " + str(learn_rate))
+print("epoch: " + str(n_epochs))
+print("class: " + str(n_codebooks))
+print()
+
+train_quarter = LVQ()
+train_quarter.set_n_codebooks(n_codebooks)
+
+# load and prepare data train
+filename = 'train_quarter.csv'
+train_quarter.load_csv(filename, 'train')
+for i in range(len(train_quarter.data_train[0])-1):
+    if i != 5: # difference normalization for average value
+        train_quarter.min_max_normalize(train_quarter.data_train, i, 0, 50)
+    else:
+        train_quarter.min_max_normalize(train_quarter.data_train, i, 0, 30)
+
+# load and prepare data test
+# filename = 'test_quarter.csv'
+# train_quarter.load_csv(filename, 'test')
+# for i in range(len(train_quarter.data_test[0])-1):
+#     if i != 5:
+#         train_quarter.min_max_normalize(train_quarter.data_test, i, 0, 50)
+#     else:
+#         train_quarter.min_max_normalize(train_quarter.data_test, i, 0, 30)
+
+train_quarter.train_codebooks(learn_rate, n_epochs)
+
+print("class codebooks: ", end="")
+print([row[-1] for row in train_quarter.codebooks])
+
+score, wrong_data, actual, predictions = train_quarter.accuracy_metric('train')
+# score_test, wrong_data_test, actual_test, predictions_test = train_quarter.accuracy_metric('test')
+
+print("===============train quarter==============")
+print("score: " + str(round(score, 3)) + "%")
+print("\n")
+print("wrong data: ", end="")
+print(wrong_data)
+
+# print("\n===============test===============")
+# print("score test: " + str(round(score_test, 3)) + "%")
+# print("\n")
+# print("wrong data test: ", end="")
+# print(wrong_data_test)
+
+train_quarter.export_codebooks("quarter_codebooks")
+
+quarter, quarter_test, dataset_path = create_dataset.group_data("quarter")
+
+# Show wrong data train image
+helper.show_wrong_data(wrong_data, predictions, quarter, dataset_path)
+# exit()
+
+# Show wrong data test image
+# helper.show_wrong_data(wrong_data_test, predictions_test, quarter_test, dataset_path)
 # exit()

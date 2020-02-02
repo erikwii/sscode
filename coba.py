@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 import threading
+import math
 
 # helper generator
 def split_tol(test_list, tol):
@@ -57,6 +58,36 @@ thresh = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
 
 # calculating histogram each row of image
 counts = np.sum(thresh == 255, axis=1)
+
+mean = np.mean(counts)
+# calculate average of counts (head of notes position)
+check = (np.abs(counts - mean) < 2)
+indices = [i for i, x in enumerate(check) if x == True]
+group_average = list(split_tol(indices,2))
+average_index = sum(indices)/len(indices)
+
+hd_hist = []
+for i in range(50):
+    if i not in indices:
+        hd_hist.append(0)
+    else:
+        hd_hist.append(1)
+
+y = range(49, -1, -1)
+yticks = range(0, 50, -2)
+plt.subplot(1, 2, 1)
+plt.plot(counts, y)
+plt.yticks(yticks)
+plt.title(img_name + ' (Asli)')
+
+plt.subplot(1, 2, 2)
+plt.plot(hd_hist, y)
+plt.yticks(yticks)
+plt.title(img_name + ' (Deteksi kepala not)')
+
+plt.show()
+exit()
+
 max_hist = max(counts)
 counts_col = np.sum(thresh == 255, axis=0)
 print("Max level col: ", end="")
