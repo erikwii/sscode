@@ -33,25 +33,80 @@ def find_paranada_index(paranada_list, average_list):
 def min_max_normalize(data, min=0, max=100):
     return round((data - min) / (max - min), 3)
 
+def detect_paranada(hist, filename):
+    mean = np.mean(hist)
+    std = np.std(hist)
+    stat_z = [(s-mean)/std for s in hist]
+    
+    paranada = (np.abs(stat_z) > 2)
+    indices = [i for i, x in enumerate(paranada) if x == True]
+    
+    if indices == []:
+        max_hist = max(hist)
+
+        paranada = (np.abs(np.abs(hist - max_hist) <= 2))
+        indices = [i for i, x in enumerate(paranada) if x == True]
+
+        log_message = "WARNING: Failed to get outlier of " + filename
+        print(log_message)
+        # helper.show_plot(i, hist, "")
+    
+    group_paranada = list(split_tol(indices,2))
+    paranada_index = [i[0] for i in group_paranada]
+
+    if len(paranada_index) < 5:
+        print("Something error with process " + filename)
+    
+    return paranada, group_paranada, paranada_index
+
+def remove_paranada(paranada, hist):
+    non_paranada = list()
+    j = 0
+    for x in paranada:
+        if x == True:
+            if j > 0 and j < len(paranada)-1:
+                if paranada[j+1] == True:
+                    mean = (hist[j-1]+hist[j+2])/2
+                elif paranada[j-1] == True:
+                    mean = (hist[j-2]+hist[j+1])/2
+                else:
+                    mean = (hist[j-1]+hist[j+1])/2
+            elif j == 0:
+                if paranada[j+1] == True:
+                    mean = hist[j+2]
+                else:
+                    mean = hist[j+1]
+            elif j == len(paranada)-1:
+                if paranada[j-1] == True:
+                    mean = hist[j-2]
+                else:
+                    mean = hist[j-1]
+            non_paranada.append(mean)
+        else :
+            non_paranada.append(hist[j])
+        j += 1
+
+    return non_paranada
+
 kernel = np.ones((5, 5), np.uint8)
 
 # Import image from img folder
-img_name = 'note-quarter-g1-977.png'
-img = cv2.imread('img/originals-resized/' + img_name,
+img_name = 'note-quarter-g1-977'
+img = cv2.imread('img/originals-resized/' + img_name + ".png",
                  cv2.IMREAD_GRAYSCALE)
 thresh_normal = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
                                cv2.THRESH_BINARY, 11, 2)
-f = open("note-quarter-g1-977.txt", "w")
-for row in img:
-    s = ""
-    for d in row:
-        normal = min_max_normalize(d, 0, 255)
-        if d != 255 and d != 0:
-            s += (str(normal) + "\t")
-        else:
-            s += (str(normal) + "\t\t")
-    f.write(s+"\n")
-f.close()
+# f = open(img_name+".txt", "w")
+# for row in img:
+#     s = ""
+#     for d in row:
+#         normal = min_max_normalize(d, 0, 255)
+#         if d != 255 and d != 0:
+#             s += (str(normal) + "\t")
+#         else:
+#             s += (str(normal) + "\t\t")
+#     f.write(s+"\n")
+# f.close()
 otsu = cv2.threshold(img,0,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)[1]
 thresh = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
                                cv2.THRESH_BINARY_INV, 11, 2)
@@ -66,6 +121,14 @@ indices = [i for i, x in enumerate(check) if x == True]
 group_average = list(split_tol(indices,2))
 average_index = sum(indices)/len(indices)
 
+scale_percent = 500  # percent of original size
+width = int(thresh.shape[1] * scale_percent / 100)
+height = int(thresh.shape[0] * scale_percent / 100)
+dim = (width, height)
+
+resized = cv2.resize(thresh, dim, interpolation=cv2.INTER_AREA)
+cv2.imwrite(img_name + " (binary inverted).png", resized)
+
 hd_hist = []
 for i in range(50):
     if i not in indices:
@@ -73,17 +136,22 @@ for i in range(50):
     else:
         hd_hist.append(1)
 
+paranada, group_paranada, index_paranada = detect_paranada(counts, img_name)
+non_paranada = remove_paranada(paranada, counts)
+
 y = range(49, -1, -1)
-yticks = range(0, 50, -2)
+yticks = range(49, -1, -2)
 plt.subplot(1, 2, 1)
 plt.plot(counts, y)
 plt.yticks(yticks)
+plt.axis((0,30,0,50))
 plt.title(img_name + ' (Asli)')
 
 plt.subplot(1, 2, 2)
-plt.plot(hd_hist, y)
+plt.plot(non_paranada, y)
 plt.yticks(yticks)
-plt.title(img_name + ' (Deteksi kepala not)')
+plt.axis((0,30,0,50))
+plt.title(img_name + ' (Non-paranada)')
 
 plt.show()
 exit()
@@ -127,12 +195,7 @@ print("\nin line: " + str(find_paranada_index(group_paranada, group_average)))
 # exit()
 # plt.hist(thresh.ravel(),256,[0,256]); plt.show()
 
-scale_percent = 500  # percent of original size
-width = int(thresh.shape[1] * scale_percent / 100)
-height = int(thresh.shape[0] * scale_percent / 100)
-dim = (width, height)
 # resize image
-resized = cv2.resize(thresh, dim, interpolation=cv2.INTER_AREA)
 resized_thresh = cv2.resize(thresh_normal, dim, interpolation=cv2.INTER_AREA)
 resized_img = cv2.resize(img, dim, interpolation=cv2.INTER_AREA)
 resized_otsu = cv2.resize(otsu, dim, interpolation=cv2.INTER_AREA)

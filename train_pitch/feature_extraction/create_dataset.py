@@ -39,130 +39,6 @@ def group_data(identifier):
 
     return train, test, dataset_path
 
-def create_csv(**kwargs):
-    identifier = kwargs.get('identifier', "quarter")
-
-    train_group, test_group, dataset_path = group_data(identifier)
-
-    type = kwargs.get('type', 'all')
-
-    if type == 'all' or type == 'train':
-        train_data = open("train_"+ identifier +".csv", "w")
-        train_info = open("train_"+ identifier +"_info.csv", "w")
-        class_column = 0
-        for note in train_group:
-
-            class_counter = 0
-            for i in note:
-                img = cv2.imread(dataset_path + i, cv2.IMREAD_GRAYSCALE)
-
-                thresh_method = kwargs.get('thresh_method', "gaussian")
-                if thresh_method == 'mean':
-                    thresh_cv = cv2.ADAPTIVE_THRESH_MEAN_C
-                else:
-                    thresh_cv = cv2.ADAPTIVE_THRESH_GAUSSIAN_C
-
-                thresh = cv2.adaptiveThreshold(img, 255, thresh_cv,
-                                                cv2.THRESH_BINARY_INV, 11, 2)
-                
-                # calculating histogram each row of image
-                hist = np.sum(thresh == 255, axis=1)
-                
-                # check the index row of the paranada exist
-                paranada, group_paranada, paranada_index = detect_paranada(hist, i)
-
-                # remove paranada
-                non_paranada = remove_paranada(paranada, hist)
-                non_paranada = remove_outlier(non_paranada)
-
-                # calculate average of hist (head of notes position)
-                average = np.mean(hist)
-                
-                length_area = kwargs.get('length_area', 5)
-
-                index_area = detect_head(non_paranada, length_area)
-                
-                train_info.write(i + "\n")
-                # print(i)
-                # print(index_area)
-                # helper.show_non_paranada_plot(i, hist, non_paranada)
-
-                # inserting feature to csv file
-                for paranada in paranada_index:
-                    train_data.write(str(paranada) + ", ")
-                
-                train_data.write(str(average) + ", ")
-                train_data.write(str(index_area) + ", ")
-
-                train_data.write(str(class_column) + "\n")
-
-                max_num_class = kwargs.get('max_num_class', 10)
-
-                class_counter += 1
-                if class_counter == max_num_class:
-                    break
-
-            class_column += 1
-
-        train_data.close()
-        train_info.close()
-
-    # ===============================================================
-
-    if type == 'all' or type == 'test':
-        test_data = open("test_" + identifier + ".csv", "w")
-        class_column = 0
-        for note in test_group:
-
-            class_counter = 0
-            for i in note:
-                img = cv2.imread(dataset_path + i, cv2.IMREAD_GRAYSCALE)
-                
-                
-
-                thresh_method = kwargs.get('thresh_method', "gaussian")
-                if thresh_method == 'mean':
-                    thresh_cv = cv2.ADAPTIVE_THRESH_MEAN_C
-                else:
-                    thresh_cv = cv2.ADAPTIVE_THRESH_GAUSSIAN_C
-
-                thresh = cv2.adaptiveThreshold(img, 255, thresh_cv,
-                                                cv2.THRESH_BINARY_INV, 11, 2)
-                
-                # calculating histogram each row of image
-                hist = np.sum(thresh == 255, axis=1)
-                
-                # check the index row of the paranada exist
-                paranada, group_paranada, paranada_index = detect_paranada(hist, i)
-
-                # remove paranada
-                non_paranada = remove_paranada(paranada, hist)
-                non_paranada = remove_outlier(non_paranada)
-
-                # calculate average of hist (head of notes position)
-                average = np.mean(hist)
-                
-                length_area = kwargs.get('length_area', 5)
-
-                index_area = detect_head(non_paranada, length_area)
-                
-                # helper.show_non_paranada_plot(i, hist, non_paranada)
-
-                # inserting feature to csv file
-                for paranada in paranada_index:
-                    test_data.write(str(paranada) + ", ")
-
-                test_data.write(str(average) + ", ")
-                test_data.write(str(index_area) + ", ")
-
-                test_data.write(str(class_column) + "\n")
-
-                class_counter += 1
-
-            class_column += 1
-
-        test_data.close()
-
 def group_data_beats():
     path = os.path.dirname(os.path.abspath(__file__))
 
@@ -182,87 +58,163 @@ def group_data_beats():
 
     return beats, test_beats, dataset_path
 
+def create_csv(**kwargs):
+    identifier = kwargs.get('identifier', "quarter")
 
-def create_beats_csv(**kwargs):
-    beats, test_beats, dataset_path = group_data_beats()
+    if identifier == 'beats':
+        train_group, test_group, dataset_path = group_data_beats()
+    else:
+        train_group, test_group, dataset_path = group_data(identifier)
 
     type = kwargs.get('type', 'all')
 
+    extraction = kwargs.get('extraction', 'paranada')
+    
+    hist_axis = kwargs.get('hist_axis', 'row')
+
+    thresh_method = kwargs.get('thresh_method', "gaussian")
+    if thresh_method == 'mean':
+        thresh_cv = cv2.ADAPTIVE_THRESH_MEAN_C
+    else:
+        thresh_cv = cv2.ADAPTIVE_THRESH_GAUSSIAN_C
+    
+    max_num_class = kwargs.get('max_num_class', 10)
+
+    length_area = kwargs.get('length_area', 5)
+
     if type == 'all' or type == 'train':
-        train_data = open("train_beats.csv", "w")
-        class_column = 0
-        for note in beats:
-
-            class_counter = 0
-            for i in note:
-                img = cv2.imread(dataset_path + i, cv2.IMREAD_GRAYSCALE)
-
-                thresh_method = kwargs.get('thresh_method', "gaussian")
-                if thresh_method == 'mean':
-                    thresh_cv = cv2.ADAPTIVE_THRESH_MEAN_C
-                else:
-                    thresh_cv = cv2.ADAPTIVE_THRESH_GAUSSIAN_C
-
-                thresh = cv2.adaptiveThreshold(img, 255, thresh_cv,
-                                                cv2.THRESH_BINARY_INV, 11, 2)
-                # calculating histogram each col of image
-                hist_col = np.sum(thresh == 255, axis=0)
-                
-                for c in hist_col:
-                    train_data.write(str(c) + ", ")
-
-                train_data.write(str(class_column) + "\n")
-                
-                max_num_class = kwargs.get('max_num_class', 10)
-
-                class_counter += 1
-                if class_counter == max_num_class:
-                    break
-
-            class_column += 1
-
-        train_data.close()
-
+        if extraction == 'pixel':
+            extract_pixel(train_group, type, identifier, dataset_path, thresh_cv, max_num_class)
+        elif extraction == 'histogram':
+            extract_hist(hist_axis, train_group, type, identifier, dataset_path, thresh_cv, max_num_class)
+        else:
+            extract_paranada(train_group, type, identifier, dataset_path, thresh_cv, max_num_class, length_area)
+    
     # ===============================================================
 
     if type == 'all' or type == 'test':
-        test_data = open("test_beats.csv", "w")
-        class_column = 0
-        for note in test_beats:
+        if extraction == 'pixel':
+            extract_pixel(test_group, type, identifier, dataset_path, thresh_cv)
+        elif extraction == 'histogram':
+            extract_hist(hist_axis, test_group, type, identifier, dataset_path, thresh_cv, max_num_class)
+        else:
+            extract_paranada(test_group, type, identifier, dataset_path, thresh_cv, max_num_class, length_area)
 
-            class_counter = 0
-            for i in note:
-                img = cv2.imread(dataset_path + i, cv2.IMREAD_GRAYSCALE)
-                
-                
+def extract_pixel(group, type, identifier, dataset_path, thresh_method, max_num_class):
+    data = open(type + "_" + identifier + ".csv", "w")
+    info = open(type +"_"+ identifier +"_info.csv", "w")
+    class_column = 0
+    for note in group:
 
-                thresh_method = kwargs.get('thresh_method', "gaussian")
-                if thresh_method == 'mean':
-                    thresh_cv = cv2.ADAPTIVE_THRESH_MEAN_C
-                else:
-                    thresh_cv = cv2.ADAPTIVE_THRESH_GAUSSIAN_C
+        class_counter = 0
+        for i in note:
+            info.write(i + "\n")
 
-                thresh = cv2.adaptiveThreshold(img, 255, thresh_cv,
+            img = cv2.imread(dataset_path + i, cv2.IMREAD_GRAYSCALE)
+            thresh = cv2.adaptiveThreshold(img, 255, thresh_method,
                                                 cv2.THRESH_BINARY_INV, 11, 2)
-                
-                # calculating histogram each col of image
-                hist_col = np.sum(thresh == 255, axis=0)
+            for row in thresh:
+                for column in row:
+                    data.write(str(column) + ", ")
+            
+            data.write(str(class_column) + "\n")
 
-                for c in hist_col:
-                    test_data.write(str(c) + ", ")
-                # test_data.write(str(min_level) + ", ")
-                # test_data.write(str(max_level) + ", ")
-                # test_data.write(str(average_col) + ", ")
+            class_counter += 1
+            if class_counter == max_num_class:
+                break
 
-                test_data.write(str(class_column) + "\n")
+        class_column += 1
 
-                class_counter += 1
-                if class_counter >= max_num_class/4:
-                    break
+    data.close()
+    info.close
 
-            class_column += 1
+def extract_paranada(group, type, identifier, dataset_path, thresh_method, max_num_class, length_area):
+    data = open(type +"_"+ identifier +".csv", "w")
+    info = open(type +"_"+ identifier +"_info.csv", "w")
+    class_column = 0
+    for note in group:
 
-        test_data.close()
+        class_counter = 0
+        for i in note:
+            img = cv2.imread(dataset_path + i, cv2.IMREAD_GRAYSCALE)
+
+            thresh = cv2.adaptiveThreshold(img, 255, thresh_method,
+                                            cv2.THRESH_BINARY_INV, 11, 2)
+            
+            # calculating histogram each row of image
+            hist = np.sum(thresh == 255, axis=1)
+            
+            # check the index row of the paranada exist
+            paranada, group_paranada, paranada_index = detect_paranada(hist, i)
+
+            # remove paranada
+            non_paranada = remove_paranada(paranada, hist)
+            non_paranada = remove_outlier(non_paranada)
+
+            # calculate average of hist (head of notes position)
+            average = np.mean(hist)
+
+            index_area = detect_head(non_paranada, length_area)
+            
+            info.write(i + "\n")
+            # print(i)
+            # print(index_area)
+            # helper.show_non_paranada_plot(i, hist, non_paranada)
+
+            # inserting feature to csv file
+            for paranada in paranada_index:
+                data.write(str(paranada) + ", ")
+            
+            data.write(str(average) + ", ")
+            data.write(str(index_area) + ", ")
+
+            data.write(str(class_column) + "\n")
+
+            class_counter += 1
+            if class_counter == max_num_class:
+                break
+
+        class_column += 1
+
+    data.close()
+    info.close()
+
+def extract_hist(hist_axis, group, type, identifier, dataset_path, thresh_method, max_num_class):
+    data = open(type +"_"+ identifier +".csv", "w")
+    info = open(type +"_"+ identifier +"_info.csv", "w")
+    class_column = 0
+    for note in group:
+
+        class_counter = 0
+        for i in note:
+            info.write(i + "\n")
+
+            img = cv2.imread(dataset_path + i, cv2.IMREAD_GRAYSCALE)
+
+            thresh = cv2.adaptiveThreshold(img, 255, thresh_method,
+                                            cv2.THRESH_BINARY_INV, 11, 2)
+            
+            if hist_axis == 'col':
+                index_axis = 0
+            else:
+                index_axis = 1
+
+            # calculating histogram each col of image
+            hist = np.sum(thresh == 255, axis=index_axis)
+            
+            for c in hist:
+                data.write(str(c) + ", ")
+
+            data.write(str(class_column) + "\n")
+
+            class_counter += 1
+            if class_counter == max_num_class:
+                break
+
+        class_column += 1
+
+    data.close()
+    info.close()
 
 def noise_reduction(img):
     # convert all to float64
@@ -348,18 +300,10 @@ def detect_head(hist, length_area):
     area = 0
     index_area = 0
     for c in range(len(hist) - (length_area - 1)):
-        y_vals = hist[c:c+length_area]
+        y_vals = hist[c:c + length_area]
         this_area = helper.integrate(y_vals, (length_area - 1))
         if area < this_area:
             index_area = c + (length_area/2)
             area = this_area
 
     return index_area
-
-# printable = {}
-# printable["average"] = average
-# printable["average_index"] = average_index
-# printable["paranada"] = paranada
-# printable["paranada_index"] = paranada_index
-# print(printable)
-# exit()

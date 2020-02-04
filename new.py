@@ -7,13 +7,13 @@ from matplotlib import pyplot as plt
 from group_beat import *
 from group_pitch import *
 
-randi = [
-    random.sample(range(0,49), 40),     # whole
-    random.sample(range(0,449), 40),    # half
-    random.sample(range(0,1184), 40),   # quarter
-    random.sample(range(0,1304), 40),   # eighth
-    random.sample(range(0,276), 40)     # sixteenth
-]
+# randi = [
+#     random.sample(range(0,49), 40),     # whole
+#     random.sample(range(0,449), 40),    # half
+#     random.sample(range(0,1184), 40),   # quarter
+#     random.sample(range(0,1304), 40),   # eighth
+#     random.sample(range(0,276), 40)     # sixteenth
+# ]
 
 train_beats = open("train_beats.csv", "w")
 class_column = 0
@@ -21,22 +21,23 @@ for note in beats:
 
     class_counter = 0
     for i in note:
-        if class_counter in randi[class_column]:
-            img = cv2.imread(dataset_path + i, cv2.IMREAD_GRAYSCALE)
-            thresh = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-                                                cv2.THRESH_BINARY_INV, 11, 2)
-            for row in thresh:
-                for column in row:
-                    train_beats.write(str(column) + ", ")
-            
-            train_beats.write(str(class_column) + "\n")
+        img = cv2.imread(dataset_path + i, cv2.IMREAD_GRAYSCALE)
+        thresh = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                                            cv2.THRESH_BINARY_INV, 11, 2)
+        for row in thresh:
+            for column in row:
+                train_beats.write(str(column) + ", ")
+        
+        train_beats.write(str(class_column) + "\n")
 
         class_counter += 1
+        if class_counter == 4:
+            break
 
     class_column += 1
 
 train_beats.close()
-
+exit()
 # ===============================================================
 
 randi = [

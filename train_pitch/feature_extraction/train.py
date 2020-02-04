@@ -52,10 +52,10 @@ def find_middle_factor(num):
     return find_middle(factors)
 
 # Create dataset CSV
-create_dataset.create_beats_csv()
+create_dataset.create_csv(identifier='beats', extraction='histogram', hist_axis='col', max_num_class=2, type='train')
 create_dataset.create_csv(identifier='whole', max_num_class=4, length_area=5, type='train')
-create_dataset.create_csv(identifier='half', max_num_class=4, length_area=5, type='all')
-create_dataset.create_csv(identifier='quarter', max_num_class=4, length_area=5, type='all')
+create_dataset.create_csv(identifier='half', max_num_class=4, length_area=5, type='train')
+create_dataset.create_csv(identifier='quarter', max_num_class=4, length_area=5, type='train')
 
 # ============================================================= #
 # ======================== TRAINING BEATS ===================== #

@@ -60,11 +60,18 @@ score, wrong_data = train_beats.accuracy_metric('train')
 
 print(score)
 print(wrong_data)
-print(len(wrong_data))
-# exit()
+# print(len(wrong_data))
+f = open("codebooks.csv", 'w+')
+for codebook in train_beats.codebooks:
+    for data in codebook:
+        f.write(str(data) + ", ")
+    f.write("\n")
+f.close()
+os.rename('codebooks.csv', 'codebooks('+str(score)+').csv')
+exit()
 img_data = list()
 
-print(len(beats[0]))
+# print(len(beats[0]))
 
 class_column = 0
 for note in beats:
