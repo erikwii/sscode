@@ -51,54 +51,63 @@ def find_middle_factor(num):
     
     return find_middle(factors)
 
+def train_beats(max_normalize):
+    # ============================================================= #
+    # ======================== TRAINING BEATS ===================== #
+    # ============================================================= #
+
+    learn_rate = 0.02
+    n_epochs = 1000
+    n_codebooks = 3
+
+    print("learning rate: " + str(learn_rate))
+    print("epoch: " + str(n_epochs))
+    print("class: " + str(n_codebooks))
+    print()
+
+    train_beats = LVQ()
+    train_beats.set_n_codebooks(n_codebooks)
+
+    # load and prepare data train
+    filename = 'train_beats.csv'
+    train_beats.load_csv(filename, 'train')
+    for i in range(len(train_beats.data_train[0])-1):
+        train_beats.min_max_normalize(train_beats.data_train, i, 0, max_normalize)
+
+    # Training process
+    start_time = time.time()
+    train_beats.train_codebooks(learn_rate, n_epochs)
+    duration = time.time() - start_time
+
+    print("\nclass codebooks: ", end="")
+    print([row[-1] for row in train_beats.codebooks])
+
+    score, wrong_data, actual, predictions = train_beats.accuracy_metric('train')
+
+    print("===============train beats==============")
+    print("Waktu proses pembelajaran: %s detik ---" % (duration))
+    print("score: " + str(round(score, 3)) + "%\n")
+    print("wrong data: ", end="")
+    print(wrong_data)
+
+    train_beats.export_codebooks("beats_codebooks")
+
+    beats, beats_test, dataset_path = create_dataset.group_data_beats()
+
+    # Show wrong data image
+    # helper.show_wrong_data(wrong_data, predictions, beats, dataset_path)
+    # exit()
+
 # Create dataset CSV
+create_dataset.create_csv(identifier='beats', extraction='pixel', hist_axis='col', max_num_class=2, type='train')
+train_beats(255)
 create_dataset.create_csv(identifier='beats', extraction='histogram', hist_axis='col', max_num_class=2, type='train')
+train_beats(50)
+
+exit()
 create_dataset.create_csv(identifier='whole', max_num_class=4, length_area=5, type='train')
 create_dataset.create_csv(identifier='half', max_num_class=4, length_area=5, type='train')
 create_dataset.create_csv(identifier='quarter', max_num_class=4, length_area=5, type='train')
-
-# ============================================================= #
-# ======================== TRAINING BEATS ===================== #
-# ============================================================= #
-
-learn_rate = 0.02
-n_epochs = 1000
-n_codebooks = 3
-
-print("learning rate: " + str(learn_rate))
-print("epoch: " + str(n_epochs))
-print("class: " + str(n_codebooks))
-print()
-
-train_beats = LVQ()
-train_beats.set_n_codebooks(n_codebooks)
-
-# load and prepare data train
-filename = 'train_beats.csv'
-train_beats.load_csv(filename, 'train')
-for i in range(len(train_beats.data_train[0])-1):
-    train_beats.min_max_normalize(train_beats.data_train, i, 0, 50)
-
-# Training process
-train_beats.train_codebooks(learn_rate, n_epochs)
-
-print("\nclass codebooks: ", end="")
-print([row[-1] for row in train_beats.codebooks])
-
-score, wrong_data, actual, predictions = train_beats.accuracy_metric('train')
-
-print("===============train beats==============")
-print("score: " + str(round(score, 3)) + "%\n")
-print("wrong data: ", end="")
-print(wrong_data)
-
-train_beats.export_codebooks("beats_codebooks")
-
-beats, beats_test, dataset_path = create_dataset.group_data_beats()
-
-# Show wrong data image
-# helper.show_wrong_data(wrong_data, predictions, beats, dataset_path)
-# exit()
 
 # ============================================================= #
 # ======================== TRAINING WHOLE ===================== #
