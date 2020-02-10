@@ -51,14 +51,16 @@ def find_middle_factor(num):
     
     return find_middle(factors)
 
-def train_beats(max_normalize):
+def train_beats(**kwargs):
     # ============================================================= #
     # ======================== TRAINING BEATS ===================== #
     # ============================================================= #
 
-    learn_rate = 0.02
-    n_epochs = 1000
-    n_codebooks = 3
+    max_normalize = kwargs.get('max_normalize', 255)
+
+    learn_rate = kwargs.get('learning_rate', 0.05)
+    n_epochs = kwargs.get('max_epoch', 100)
+    n_codebooks = kwargs.get('n_codebooks', 3)
 
     print("learning rate: " + str(learn_rate))
     print("epoch: " + str(n_epochs))
@@ -98,9 +100,42 @@ def train_beats(max_normalize):
     # helper.show_wrong_data(wrong_data, predictions, beats, dataset_path)
     # exit()
 
+    return score, duration
+
 # Create dataset CSV
+score = list()
+duration = list()
 create_dataset.create_csv(identifier='beats', extraction='pixel', hist_axis='col', max_num_class=2, type='train')
-train_beats(255)
+for i in range(50,301,50):
+    score_i, duration_i = train_beats(max_normalize=255, learning_rate=0.05, max_epoch=i)
+    
+    score.append(round(score_i,3))
+    duration.append(round(duration_i,3))
+
+print("epoh\tscore\tduration")
+for i in range(len(score)):
+    print(str((i+1)*50) + "\t" + str(round(score[i],3)) + "\t" + str(duration[i]))
+
+# show plot
+# plt.subplot(1, 2, 1)
+plt.plot(range(50,301,50), score)
+plt.ylabel("akurasi (%)")
+plt.xlabel("jumlah epoh")
+for i, txt in enumerate(score):
+    plt.annotate(txt, (range(50,301,50)[i], score[i]))
+plt.gca().yaxis.grid(True)
+plt.title("Pengaruh jumlah epoh terhadap akurasi (alpha = 0.05)")
+
+# plt.subplot(1, 2, 2)
+# x = range(30)
+# plt.plot(range(50,301,50), duration, '-bo')
+# plt.ylabel("durasi (detik)")
+# plt.xlabel("jumlah epoh")
+# plt.gca().yaxis.grid(True)
+# plt.title("Pengaruh jumlah epoh terhadap running time")
+
+plt.show()
+exit()
 create_dataset.create_csv(identifier='beats', extraction='histogram', hist_axis='col', max_num_class=2, type='train')
 train_beats(50)
 
