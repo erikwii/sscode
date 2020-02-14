@@ -56,6 +56,8 @@ def train_beats(**kwargs):
     # ======================== TRAINING BEATS ===================== #
     # ============================================================= #
 
+    extraction = kwargs.get('extraction', 'pixel')
+
     max_normalize = kwargs.get('max_normalize', 255)
 
     learn_rate = kwargs.get('learning_rate', 0.05)
@@ -73,8 +75,12 @@ def train_beats(**kwargs):
     # load and prepare data train
     filename = 'train_beats.csv'
     train_beats.load_csv(filename, 'train')
-    for i in range(len(train_beats.data_train[0])-1):
-        train_beats.min_max_normalize(train_beats.data_train, i, 0, max_normalize)
+    if extraction == 'pixel':
+        for i in range(len(train_beats.data_train[0])-1):
+            train_beats.min_max_normalize(train_beats.data_train, i, 0, 255)
+    else:
+        for i in range(len(train_beats.data_train[0])-1):
+            train_beats.min_max_normalize(train_beats.data_train, i, 0, 50)
 
     # Training process
     start_time = time.time()
@@ -102,29 +108,120 @@ def train_beats(**kwargs):
 
     return score, duration
 
+def train_pitch(**kwargs):
+    # ============================================================= #
+    # ======================== TRAINING WHOLE ===================== #
+    # ============================================================= #
+
+    identifier = kwargs.get('identifier', 'quarter')
+
+    extraction = kwargs.get('extraction', 'paranada')
+
+    max_normalize = kwargs.get('max_normalize', 255)
+
+    learn_rate = kwargs.get('learning_rate', 0.05)
+    n_epochs = kwargs.get('max_epoch', 100)
+    n_codebooks = kwargs.get('n_codebooks', 9)
+
+    print("learning rate: " + str(learn_rate))
+    print("epoch: " + str(n_epochs))
+    print("class: " + str(n_codebooks))
+    print()
+
+    train_pitch = LVQ()
+    train_pitch.set_n_codebooks(n_codebooks)
+
+    # load and prepare data train
+    filename = 'train_'+ identifier +'.csv'
+    train_pitch.load_csv(filename, 'train')
+    if extraction == 'paranada':
+        for i in range(len(train_pitch.data_train[0])-1):
+            if i != 5: # difference normalization for average value
+                train_pitch.min_max_normalize(train_pitch.data_train, i, 0, 50)
+            else:
+                train_pitch.min_max_normalize(train_pitch.data_train, i, 0, 30)
+    elif extraction == 'pixel':
+        for i in range(len(train_pitch.data_train[0])-1):
+            train_pitch.min_max_normalize(train_pitch.data_train, i, 0, 255)
+    else:
+        for i in range(len(train_pitch.data_train[0])-1):
+            train_pitch.min_max_normalize(train_pitch.data_train, i, 0, 30)
+
+    # load and prepare data test
+    # filename = 'test_whole.csv'
+    # train_pitch.load_csv(filename, 'test')
+    # for i in range(len(train_pitch.data_test[0])-1):
+    #     if i != 5:
+    #         train_pitch.min_max_normalize(train_pitch.data_test, i, 0, 50)
+    #     else:
+    #         train_pitch.min_max_normalize(train_pitch.data_test, i, 0, 30)
+
+    # Training process
+    start_time = time.time()
+    train_pitch.train_codebooks(learn_rate, n_epochs)
+    duration = time.time() - start_time
+
+    print("class codebooks: ", end="")
+    print([row[-1] for row in train_pitch.codebooks])
+
+    score, wrong_data, actual, predictions = train_pitch.accuracy_metric('train')
+    # score_test, wrong_data_test, actual_test, predictions_test = train_pitch.accuracy_metric('test')
+
+    print("===============train "+ identifier +"==============")
+    print("score: " + str(round(score, 3)) + "%")
+    print("\n")
+    print("wrong data: ", end="")
+    print(wrong_data)
+
+    # print("\n===============test===============")
+    # print("score test: " + str(round(score_test, 3)) + "%")
+    # print("\n")
+    # print("wrong data test: ", end="")
+    # print(wrong_data_test)
+
+    train_pitch.export_codebooks(identifier +"_codebooks")
+
+    pitch, pitch_test, dataset_path = create_dataset.group_data(identifier)
+
+    # Show wrong data train image
+    # helper.show_wrong_data(wrong_data, predictions, whole, dataset_path)
+    # exit()
+
+    # Show wrong data test image
+    # helper.show_wrong_data(wrong_data_test, predictions_test, whole_test, dataset_path)
+    # exit()
+
+    return score, duration
+
 # Create dataset CSV
 score = list()
 duration = list()
-create_dataset.create_csv(identifier='beats', extraction='pixel', hist_axis='col', max_num_class=2, type='train')
-for i in range(50,301,50):
-    score_i, duration_i = train_beats(max_normalize=255, learning_rate=0.05, max_epoch=i)
-    
+start_epoh = 50
+till_epoh = 301
+step = 50
+# create_dataset.create_csv(identifier='beats', extraction='histogram', hist_axis='col', max_num_class=8, type='train')
+create_dataset.create_csv(identifier='quarter', extraction='paranada', max_num_class=4, length_area=5, type='train')
+for i in range(start_epoh,till_epoh,step):
+    # score_i, duration_i = train_beats(extraction='histogram', learning_rate=0.03, max_epoch=i)
+    score_i, duration_i = train_pitch(identifier='quarter', extraction='paranada', learning_rate=0.05, max_epoch=i)
+
     score.append(round(score_i,3))
     duration.append(round(duration_i,3))
 
 print("epoh\tscore\tduration")
 for i in range(len(score)):
-    print(str((i+1)*50) + "\t" + str(round(score[i],3)) + "\t" + str(duration[i]))
+    print(str(range(start_epoh,till_epoh,step)[i]) + "\t" + str(round(score[i],3)) + "\t" + str(duration[i]))
 
 # show plot
 # plt.subplot(1, 2, 1)
-plt.plot(range(50,301,50), score)
+plt.plot(range(start_epoh,till_epoh,step), score)
 plt.ylabel("akurasi (%)")
 plt.xlabel("jumlah epoh")
+plt.xticks(np.arange(start_epoh, till_epoh, step))
 for i, txt in enumerate(score):
-    plt.annotate(txt, (range(50,301,50)[i], score[i]))
+    plt.annotate(txt, (range(start_epoh,till_epoh,step)[i], score[i]))
 plt.gca().yaxis.grid(True)
-plt.title("Pengaruh jumlah epoh terhadap akurasi (alpha = 0.05)")
+plt.title("Pengaruh jumlah epoh terhadap akurasi data latih")
 
 # plt.subplot(1, 2, 2)
 # x = range(30)
