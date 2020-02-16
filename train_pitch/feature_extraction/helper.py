@@ -1,3 +1,4 @@
+import os
 import cv2 as cv
 from matplotlib import pyplot as plt
 from datetime import datetime
@@ -87,6 +88,67 @@ def find_middle_factor(num):
         return (factors[0], factors[0])
 
     return find_middle(factors)
+
+def get_dataset_info(identifier, type):
+    path = os.path.dirname(os.path.abspath(__file__))
+
+    dataset_path = path + "\\..\\..\\img\\"+ identifier +"\\"
+
+    e1 = f1 = g1 = a1 = b1 = c2 = d2 = e2 = f2 = []
+    test_e1 = test_f1 = test_g1 = test_a1 = test_b1 = test_c2 = test_d2 = test_e2 = test_f2 = []
+
+    if type == "all" or type == "train":
+        ftrain = open("train_"+identifier+"_info.csv", 'r')
+        for x in ftrain:
+            if x.find("-e1-") != -1:
+                e1.append(x.replace("\n",""))
+            elif x.find("-f1-") != -1:
+                f1.append(x.replace("\n",""))
+            elif x.find("-g1-") != -1:
+                g1.append(x.replace("\n",""))
+            elif x.find("-a1-") != -1:
+                a1.append(x.replace("\n",""))
+            elif x.find("-h1-") != -1:
+                b1.append(x.replace("\n",""))
+            elif x.find("-c2-") != -1:
+                c2.append(x.replace("\n",""))
+            elif x.find("-d2-") != -1:
+                d2.append(x.replace("\n",""))
+            elif x.find("-e2-") != -1:
+                e2.append(x.replace("\n",""))
+            elif x.find("-f2-") != -1:
+                f2.append(x.replace("\n",""))
+        ftrain.close()
+
+    train = [e1, f1, g1, a1, b1, c2, d2, e2, f2]
+
+    if type == "all" or type == "test":
+        ftest = open("test_"+identifier+"_info.csv", 'r')
+        for x in ftest:
+            if x.find("-e1-") != -1:
+                test_e1.append(x.replace("\n",""))
+            elif x.find("-f1-") != -1:
+                test_f1.append(x.replace("\n",""))
+            elif x.find("-g1-") != -1:
+                test_g1.append(x.replace("\n",""))
+            elif x.find("-a1-") != -1:
+                test_a1.append(x.replace("\n",""))
+            elif x.find("-h1-") != -1:
+                test_b1.append(x.replace("\n",""))
+            elif x.find("-c2-") != -1:
+                test_c2.append(x.replace("\n",""))
+            elif x.find("-d2-") != -1:
+                test_d2.append(x.replace("\n",""))
+            elif x.find("-e2-") != -1:
+                test_e2.append(x.replace("\n",""))
+            elif x.find("-f2-") != -1:
+                test_f2.append(x.replace("\n",""))
+        ftest.close()
+
+    test = [test_e1, test_f1, test_g1, test_a1, test_b1, test_c2, test_d2, test_e2, test_f2]
+
+    return train, test, dataset_path
+
 
 def show_wrong_data(wrong_data, predictions, dataset, dataset_path):
     img_data = list()
