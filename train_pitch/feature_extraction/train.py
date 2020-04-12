@@ -123,6 +123,8 @@ def train_pitch(**kwargs):
     n_epochs = kwargs.get('max_epoch', 100)
     n_codebooks = kwargs.get('n_codebooks', 9)
 
+    show_wrong_data = kwargs.get('show_wrong_data', False)
+
     print("learning rate: " + str(learn_rate))
     print("epoch: " + str(n_epochs))
     print("class: " + str(n_codebooks))
@@ -190,7 +192,8 @@ def train_pitch(**kwargs):
     # exit()
 
     # Show wrong data train image
-    helper.show_wrong_data(wrong_data, predictions, pitch, dataset_path)
+    if show_wrong_data:
+        helper.show_wrong_data(wrong_data, predictions, pitch, dataset_path)
     # exit()
 
     # Show wrong data test image
@@ -202,14 +205,16 @@ def train_pitch(**kwargs):
 # Create dataset CSV
 score = list()
 duration = list()
-start_epoh = 1600
-till_epoh = 2001
-step = 200
+start_epoh = 1000
+till_epoh = 3001
+step = 500
+
 # create_dataset.create_csv(identifier='beats', extraction='pixel', hist_axis='col', max_num_class=4, type='train')
-create_dataset.create_csv(identifier='quarter', extraction='paranada', max_num_class=4, length_area=5, type='train')
+create_dataset.create_csv(identifier='quarter', extraction='historam', max_num_class=4, length_area=5, type='train')
+
 for i in range(start_epoh,till_epoh,step):
     # score_i, duration_i = train_beats(extraction='pixel', learning_rate=0.03, max_epoch=i)
-    score_i, duration_i = train_pitch(identifier='quarter', extraction='paranada', learning_rate=0.03, max_epoch=i)
+    score_i, duration_i = train_pitch(identifier='quarter', extraction='histogram', learning_rate=0.05, max_epoch=i, show_wrong_data=True)
 
     score.append(round(score_i,3))
     duration.append(round(duration_i,3))
