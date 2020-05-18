@@ -203,34 +203,50 @@ def train_pitch(**kwargs):
     return score, duration
 
 # Create dataset CSV
-score = list()
-duration = list()
-start_epoh = 1000
-till_epoh = 3001
-step = 500
+score_q = list()
+duration_q = list()
+score_h = list()
+duration_h = list()
+
+start_epoh = 100
+till_epoh = 501
+step = 100
 
 # create_dataset.create_csv(identifier='beats', extraction='pixel', hist_axis='col', max_num_class=4, type='train')
-create_dataset.create_csv(identifier='quarter', extraction='historam', max_num_class=4, length_area=5, type='train')
+create_dataset.create_csv(identifier='quarter', extraction='pixel', max_num_class=4, length_area=5, type='train')
+create_dataset.create_csv(identifier='quarter', extraction='pixel', max_num_class=4, length_area=5, type='train')
 
 for i in range(start_epoh,till_epoh,step):
-    # score_i, duration_i = train_beats(extraction='pixel', learning_rate=0.03, max_epoch=i)
-    score_i, duration_i = train_pitch(identifier='quarter', extraction='histogram', learning_rate=0.05, max_epoch=i, show_wrong_data=True)
+    # score_i, duration_i = train_beats(extraction='pixel', learning_rate=0.05, max_epoch=i)
+    score_i, duration_i = train_pitch(identifier='quarter', extraction='pixel', learning_rate=0.05, max_epoch=i, show_wrong_data=False)
+    score_j, duration_j = train_pitch(identifier='half', extraction='pixel', learning_rate=0.05, max_epoch=i, show_wrong_data=False)
 
-    score.append(round(score_i,3))
-    duration.append(round(duration_i,3))
+    score_q.append(round(score_i,3))
+    duration_q.append(round(duration_i,3))
+    score_h.append(round(score_j,3))
+    duration_h.append(round(duration_j,3))
 
+print("Quarter:")
 print("epoh\tscore\tduration")
-for i in range(len(score)):
-    print(str(range(start_epoh,till_epoh,step)[i]) + "\t" + str(round(score[i],3)) + "\t" + str(duration[i]))
+for i in range(len(score_q)):
+    print(str(range(start_epoh,till_epoh,step)[i]) + "\t" + str(round(score_q[i],3)) + "\t" + str(duration_q[i]))
+
+print("\nHalf:")
+print("epoh\tscore\tduration")
+for i in range(len(score_h)):
+    print(str(range(start_epoh,till_epoh,step)[i]) + "\t" + str(round(score_h[i],3)) + "\t" + str(duration_h[i]))
 
 # show plot
 # plt.subplot(1, 2, 1)
-plt.plot(range(start_epoh,till_epoh,step), score)
+plt.plot(range(start_epoh,till_epoh,step), score_q, label="Quarter")
+plt.plot(range(start_epoh,till_epoh,step), score_h, label="Half")
 plt.ylabel("akurasi (%)")
 plt.xlabel("jumlah epoh")
 plt.xticks(np.arange(start_epoh, till_epoh, step))
-for i, txt in enumerate(score):
-    plt.annotate(txt, (range(start_epoh,till_epoh,step)[i], score[i]))
+for i, txt in enumerate(score_q):
+    plt.annotate(txt, (range(start_epoh,till_epoh,step)[i], score_q[i]))
+for i, txt in enumerate(score_h):
+    plt.annotate(txt, (range(start_epoh,till_epoh,step)[i], score_h[i]))
 plt.gca().yaxis.grid(True)
 plt.title("Pengaruh jumlah epoh terhadap akurasi data latih")
 
@@ -241,7 +257,7 @@ plt.title("Pengaruh jumlah epoh terhadap akurasi data latih")
 # plt.xlabel("jumlah epoh")
 # plt.gca().yaxis.grid(True)
 # plt.title("Pengaruh jumlah epoh terhadap running time")
-
+plt.legend()
 plt.show()
 exit()
 create_dataset.create_csv(identifier='beats', extraction='histogram', hist_axis='col', max_num_class=2, type='train')
