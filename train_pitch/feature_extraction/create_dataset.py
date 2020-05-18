@@ -109,7 +109,7 @@ def extract_pixel(group, type, identifier, dataset_path, thresh_method, max_num_
         class_counter = 0
         for i in note:
             info.write(i + "\n")
-
+            
             img = cv2.imread(dataset_path + i, cv2.IMREAD_GRAYSCALE)
             thresh = cv2.adaptiveThreshold(img, 255, thresh_method,
                                                 cv2.THRESH_BINARY_INV, 11, 2)

@@ -207,6 +207,8 @@ score_q = list()
 duration_q = list()
 score_h = list()
 duration_h = list()
+score_w = list()
+duration_w = list()
 
 start_epoh = 100
 till_epoh = 501
@@ -214,17 +216,21 @@ step = 100
 
 # create_dataset.create_csv(identifier='beats', extraction='pixel', hist_axis='col', max_num_class=4, type='train')
 create_dataset.create_csv(identifier='quarter', extraction='pixel', max_num_class=4, length_area=5, type='train')
-create_dataset.create_csv(identifier='quarter', extraction='pixel', max_num_class=4, length_area=5, type='train')
+create_dataset.create_csv(identifier='half', extraction='pixel', max_num_class=4, length_area=5, type='train')
+create_dataset.create_csv(identifier='whole', extraction='pixel', max_num_class=4, length_area=5, type='train')
 
 for i in range(start_epoh,till_epoh,step):
     # score_i, duration_i = train_beats(extraction='pixel', learning_rate=0.05, max_epoch=i)
     score_i, duration_i = train_pitch(identifier='quarter', extraction='pixel', learning_rate=0.05, max_epoch=i, show_wrong_data=False)
     score_j, duration_j = train_pitch(identifier='half', extraction='pixel', learning_rate=0.05, max_epoch=i, show_wrong_data=False)
+    score_k, duration_k = train_pitch(identifier='whole', extraction='pixel', learning_rate=0.05, max_epoch=i, show_wrong_data=False)
 
     score_q.append(round(score_i,3))
     duration_q.append(round(duration_i,3))
     score_h.append(round(score_j,3))
     duration_h.append(round(duration_j,3))
+    score_w.append(round(score_k,3))
+    duration_w.append(round(duration_k,3))
 
 print("Quarter:")
 print("epoh\tscore\tduration")
@@ -236,10 +242,16 @@ print("epoh\tscore\tduration")
 for i in range(len(score_h)):
     print(str(range(start_epoh,till_epoh,step)[i]) + "\t" + str(round(score_h[i],3)) + "\t" + str(duration_h[i]))
 
+print("\nWhole:")
+print("epoh\tscore\tduration")
+for i in range(len(score_w)):
+    print(str(range(start_epoh,till_epoh,step)[i]) + "\t" + str(round(score_w[i],3)) + "\t" + str(duration_w[i]))
+
 # show plot
 # plt.subplot(1, 2, 1)
 plt.plot(range(start_epoh,till_epoh,step), score_q, label="Quarter")
 plt.plot(range(start_epoh,till_epoh,step), score_h, label="Half")
+plt.plot(range(start_epoh,till_epoh,step), score_w, label="Whole")
 plt.ylabel("akurasi (%)")
 plt.xlabel("jumlah epoh")
 plt.xticks(np.arange(start_epoh, till_epoh, step))
@@ -247,6 +259,8 @@ for i, txt in enumerate(score_q):
     plt.annotate(txt, (range(start_epoh,till_epoh,step)[i], score_q[i]))
 for i, txt in enumerate(score_h):
     plt.annotate(txt, (range(start_epoh,till_epoh,step)[i], score_h[i]))
+for i, txt in enumerate(score_w):
+    plt.annotate(txt, (range(start_epoh,till_epoh,step)[i], score_w[i]))
 plt.gca().yaxis.grid(True)
 plt.title("Pengaruh jumlah epoh terhadap akurasi data latih")
 
