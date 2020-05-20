@@ -210,6 +210,7 @@ duration_h = list()
 score_w = list()
 duration_w = list()
 
+learning_rate = 0.1
 start_epoh = 100
 till_epoh = 501
 step = 100
@@ -221,9 +222,9 @@ create_dataset.create_csv(identifier='whole', extraction='pixel', max_num_class=
 
 for i in range(start_epoh,till_epoh,step):
     # score_i, duration_i = train_beats(extraction='pixel', learning_rate=0.05, max_epoch=i)
-    score_i, duration_i = train_pitch(identifier='quarter', extraction='pixel', learning_rate=0.05, max_epoch=i, show_wrong_data=False)
-    score_j, duration_j = train_pitch(identifier='half', extraction='pixel', learning_rate=0.05, max_epoch=i, show_wrong_data=False)
-    score_k, duration_k = train_pitch(identifier='whole', extraction='pixel', learning_rate=0.05, max_epoch=i, show_wrong_data=False)
+    score_i, duration_i = train_pitch(identifier='quarter', extraction='pixel', learning_rate=learning_rate, max_epoch=i, show_wrong_data=False)
+    score_j, duration_j = train_pitch(identifier='half', extraction='pixel', learning_rate=learning_rate, max_epoch=i, show_wrong_data=False)
+    score_k, duration_k = train_pitch(identifier='whole', extraction='pixel', learning_rate=learning_rate, max_epoch=i, show_wrong_data=False)
 
     score_q.append(round(score_i,3))
     duration_q.append(round(duration_i,3))
