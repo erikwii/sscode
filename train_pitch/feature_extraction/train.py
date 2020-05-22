@@ -110,7 +110,7 @@ def train_beats(**kwargs):
 
 def train_pitch(**kwargs):
     # ============================================================= #
-    # ======================== TRAINING WHOLE ===================== #
+    # ======================== TRAINING PITCH ===================== #
     # ============================================================= #
 
     identifier = kwargs.get('identifier', 'quarter')
@@ -211,20 +211,20 @@ score_w = list()
 duration_w = list()
 
 learning_rate = 0.1
-start_epoh = 100
-till_epoh = 501
-step = 100
+start_epoh = 1000
+till_epoh = 5001
+step = 1000
 
 # create_dataset.create_csv(identifier='beats', extraction='pixel', hist_axis='col', max_num_class=4, type='train')
-create_dataset.create_csv(identifier='quarter', extraction='pixel', max_num_class=4, length_area=5, type='train')
-create_dataset.create_csv(identifier='half', extraction='pixel', max_num_class=4, length_area=5, type='train')
-create_dataset.create_csv(identifier='whole', extraction='pixel', max_num_class=4, length_area=5, type='train')
+create_dataset.create_csv(identifier='quarter', extraction='paranada', hist_axis='row', max_num_class=4, length_area=7, type='train')
+create_dataset.create_csv(identifier='half', extraction='paranada', hist_axis='row', max_num_class=4, length_area=7, type='train')
+create_dataset.create_csv(identifier='whole', extraction='paranada', hist_axis='row', max_num_class=4, length_area=7, type='train')
 
 for i in range(start_epoh,till_epoh,step):
     # score_i, duration_i = train_beats(extraction='pixel', learning_rate=0.05, max_epoch=i)
-    score_i, duration_i = train_pitch(identifier='quarter', extraction='pixel', learning_rate=learning_rate, max_epoch=i, show_wrong_data=False)
-    score_j, duration_j = train_pitch(identifier='half', extraction='pixel', learning_rate=learning_rate, max_epoch=i, show_wrong_data=False)
-    score_k, duration_k = train_pitch(identifier='whole', extraction='pixel', learning_rate=learning_rate, max_epoch=i, show_wrong_data=False)
+    score_i, duration_i = train_pitch(identifier='quarter', extraction='paranada', learning_rate=learning_rate, max_epoch=i, show_wrong_data=False)
+    score_j, duration_j = train_pitch(identifier='half', extraction='paranada', learning_rate=learning_rate, max_epoch=i, show_wrong_data=False)
+    score_k, duration_k = train_pitch(identifier='whole', extraction='paranada', learning_rate=learning_rate, max_epoch=i, show_wrong_data=False)
 
     score_q.append(round(score_i,3))
     duration_q.append(round(duration_i,3))
@@ -250,9 +250,9 @@ for i in range(len(score_w)):
 
 # show plot
 # plt.subplot(1, 2, 1)
-plt.plot(range(start_epoh,till_epoh,step), score_q, label="Quarter")
-plt.plot(range(start_epoh,till_epoh,step), score_h, label="Half")
-plt.plot(range(start_epoh,till_epoh,step), score_w, label="Whole")
+plt.plot(range(start_epoh,till_epoh,step), score_w, label="Whole", linewidth=2)
+plt.plot(range(start_epoh,till_epoh,step), score_h, label="Half", linestyle="dashed")
+plt.plot(range(start_epoh,till_epoh,step), score_q, label="Quarter", linestyle="dotted")
 plt.ylabel("akurasi (%)")
 plt.xlabel("jumlah epoh")
 plt.xticks(np.arange(start_epoh, till_epoh, step))

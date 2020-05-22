@@ -165,7 +165,7 @@ def extract_paranada(group, type, identifier, dataset_path, thresh_method, max_n
             for paranada in paranada_index:
                 data.write(str(paranada) + ", ")
             
-            data.write(str(average) + ", ")
+            data.write(str(class_column) + ", ")
             data.write(str(index_area) + ", ")
 
             data.write(str(class_column) + "\n")

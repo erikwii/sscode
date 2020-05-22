@@ -3,6 +3,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 import threading
 import math
+import glob
+import os
 
 # helper generator
 def split_tol(test_list, tol):
@@ -91,7 +93,7 @@ def remove_paranada(paranada, hist):
 kernel = np.ones((5, 5), np.uint8)
 
 # Import image from img folder
-img_name = 'note-quarter-g1-977'
+img_name = 'note-whole-f1-946'
 img = cv2.imread('img/originals-resized/' + img_name + ".png",
                  cv2.IMREAD_GRAYSCALE)
 thresh_normal = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
