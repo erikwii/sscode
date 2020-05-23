@@ -11,17 +11,30 @@ import helper
 def group_data(identifier):
     path = os.path.dirname(os.path.abspath(__file__))
 
-    dataset_path = path + "\\..\\..\\img\\"+ identifier +"\\"
+    if identifier == "all":
+        dataset_path = path + "\\..\\..\\img\\train_pitch\\"
 
-    e1 = glob.glob1(dataset_path+"e1\\", "note-" + identifier + "*")
-    f1 = glob.glob1(dataset_path+"f1\\", "note-" + identifier + "*")
-    g1 = glob.glob1(dataset_path+"g1\\", "note-" + identifier + "*")
-    a1 = glob.glob1(dataset_path+"a1\\", "note-" + identifier + "*")
-    b1 = glob.glob1(dataset_path+"h1\\", "note-" + identifier + "*")
-    c2 = glob.glob1(dataset_path+"c2\\", "note-" + identifier + "*")
-    d2 = glob.glob1(dataset_path+"d2\\", "note-" + identifier + "*")
-    e2 = glob.glob1(dataset_path+"e2\\", "note-" + identifier + "*")
-    f2 = glob.glob1(dataset_path+"f2\\", "note-" + identifier + "*")
+        e1 = glob.glob1(dataset_path+"e1\\", "note-*")
+        f1 = glob.glob1(dataset_path+"f1\\", "note-*")
+        g1 = glob.glob1(dataset_path+"g1\\", "note-*")
+        a1 = glob.glob1(dataset_path+"a1\\", "note-*")
+        b1 = glob.glob1(dataset_path+"h1\\", "note-*")
+        c2 = glob.glob1(dataset_path+"c2\\", "note-*")
+        d2 = glob.glob1(dataset_path+"d2\\", "note-*")
+        e2 = glob.glob1(dataset_path+"e2\\", "note-*")
+        f2 = glob.glob1(dataset_path+"f2\\", "note-*")
+    else:
+        dataset_path = path + "\\..\\..\\img\\"+ identifier +"\\"
+
+        e1 = glob.glob1(dataset_path+"e1\\", "note-" + identifier + "*")
+        f1 = glob.glob1(dataset_path+"f1\\", "note-" + identifier + "*")
+        g1 = glob.glob1(dataset_path+"g1\\", "note-" + identifier + "*")
+        a1 = glob.glob1(dataset_path+"a1\\", "note-" + identifier + "*")
+        b1 = glob.glob1(dataset_path+"h1\\", "note-" + identifier + "*")
+        c2 = glob.glob1(dataset_path+"c2\\", "note-" + identifier + "*")
+        d2 = glob.glob1(dataset_path+"d2\\", "note-" + identifier + "*")
+        e2 = glob.glob1(dataset_path+"e2\\", "note-" + identifier + "*")
+        f2 = glob.glob1(dataset_path+"f2\\", "note-" + identifier + "*")
 
     train = [e1, f1, g1, a1, b1, c2, d2, e2, f2]
 
@@ -57,6 +70,40 @@ def group_data_beats():
     test_beats = [test_whole, test_half, test_quarter]
 
     return beats, test_beats, dataset_path
+
+def group_data_test_beats():
+    path = os.path.dirname(os.path.abspath(__file__))
+
+    dataset_path = path + "\\..\\..\\img\\test\\"
+
+    whole = glob.glob1(dataset_path, "note-whole*")
+    half = glob.glob1(dataset_path, "note-half*")
+    quarter = glob.glob1(dataset_path, "note-quarter*")
+
+    beats = [whole, half, quarter]
+    # print(beats)
+
+    return beats, dataset_path
+
+def group_data_test_pitch():
+    path = os.path.dirname(os.path.abspath(__file__))
+
+    dataset_path = path + "\\..\\..\\img\\test\\"
+
+    e1 = glob.glob1(dataset_path, "note-*-e1*")
+    f1 = glob.glob1(dataset_path, "note-*-f1*")
+    g1 = glob.glob1(dataset_path, "note-*-g1*")
+    a1 = glob.glob1(dataset_path, "note-*-a1*")
+    c2 = glob.glob1(dataset_path, "note-*-c2*")
+    d2 = glob.glob1(dataset_path, "note-*-d2*")
+    b1 = glob.glob1(dataset_path, "note-*-h1*")
+    e2 = glob.glob1(dataset_path, "note-*-e2*")
+    f2 = glob.glob1(dataset_path, "note-*-f2*")
+
+    pitch = [e1, f1, g1, a1, b1, c2, d2, e2, f2]
+    # print(pitch)
+
+    return pitch, dataset_path
 
 def create_csv(**kwargs):
     identifier = kwargs.get('identifier', "quarter")
@@ -100,9 +147,33 @@ def create_csv(**kwargs):
         else:
             extract_paranada(test_group, type, identifier, dataset_path, thresh_cv, max_num_class, length_area)
 
+def create_csv_test(**kwargs):
+    identifier = kwargs.get('identifier', "quarter")
+
+    thresh_method = kwargs.get('thresh_method', "gaussian")
+    if thresh_method == 'mean':
+        thresh_cv = cv2.ADAPTIVE_THRESH_MEAN_C
+    else:
+        thresh_cv = cv2.ADAPTIVE_THRESH_GAUSSIAN_C
+    
+    max_num_class = kwargs.get('max_num_class', 10)
+
+    length_area = kwargs.get('length_area', 5)
+
+    test_group, dataset_path = group_data_test_beats()
+    extract_pixel(test_group, "test", identifier, dataset_path, thresh_cv, max_num_class)
+
+    test_group, dataset_path = group_data_test_pitch()
+    extract_paranada(test_group, "test", identifier, dataset_path, thresh_cv, max_num_class, length_area)
+
 def extract_pixel(group, type, identifier, dataset_path, thresh_method, max_num_class):
-    data = open(type + "_" + identifier + ".csv", "w")
-    info = open(type +"_"+ identifier +"_info.csv", "w")
+    if type == "train":
+        data = open(type + "_" + identifier + ".csv", "w")
+        info = open(type +"_"+ identifier +"_info.csv", "w")
+    else:
+        data = open(type + "_pixel.csv", "w")
+        info = open(type + "_pixel_info.csv", "w")
+
     class_column = 0
     for note in group:
 
@@ -129,8 +200,13 @@ def extract_pixel(group, type, identifier, dataset_path, thresh_method, max_num_
     info.close
 
 def extract_paranada(group, type, identifier, dataset_path, thresh_method, max_num_class, length_area):
-    data = open(type +"_"+ identifier +".csv", "w")
-    info = open(type +"_"+ identifier +"_info.csv", "w")
+    if type == "train":
+        data = open(type + "_" + identifier + ".csv", "w")
+        info = open(type +"_"+ identifier +"_info.csv", "w")
+    else:
+        data = open(type + "_paranada.csv", "w")
+        info = open(type + "_paranada_info.csv", "w")
+
     class_column = 0
     for note in group:
 
@@ -165,7 +241,7 @@ def extract_paranada(group, type, identifier, dataset_path, thresh_method, max_n
             for paranada in paranada_index:
                 data.write(str(paranada) + ", ")
             
-            data.write(str(class_column) + ", ")
+            # data.write(str(class_column) + ", ")
             data.write(str(index_area) + ", ")
 
             data.write(str(class_column) + "\n")

@@ -77,13 +77,22 @@ class LVQ:
         dataset = list()
         with open(filename, 'r') as file:
             csv_reader = reader(file)
+            n = 1
             for row in csv_reader:
                 if not row:
                     continue
                 dataset.append(row)
+                n += 1
 
-        self.n_codebooks = len(csv_reader)
+        for i in range(len(dataset[0])-1):
+            self.str_column_to_float(dataset, i)
+
+        # convert class column to integers
+        self.str_column_to_int(dataset, -1)
+
+        self.n_codebooks = n
         self.codebooks = dataset
+        
         msg = "Import codebooks vector from " + filename + " done successfully"
         helper.write_log("dataset", '3', msg)
 
