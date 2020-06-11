@@ -78,9 +78,11 @@ def train_beats(**kwargs):
     if extraction == 'pixel':
         for i in range(len(train_beats.data_train[0])-1):
             train_beats.min_max_normalize(train_beats.data_train, i, 0, 255)
-    else:
-        for i in range(len(train_beats.data_train[0])-1):
-            train_beats.min_max_normalize(train_beats.data_train, i, 0, 50)
+    # else:
+    #     for i in range(len(train_beats.data_train[0])-1):
+    #         train_beats.min_max_normalize(train_beats.data_train, i, 0, 50)
+    
+    train_beats.random_codebooks()
 
     # Training process
     start_time = time.time()
@@ -125,7 +127,7 @@ def train_pitch(**kwargs):
 
     show_wrong_data = kwargs.get('show_wrong_data', False)
 
-    print("learning rate: " + str(learn_rate))
+    print("\n\nlearning rate: " + str(learn_rate))
     print("epoch: " + str(n_epochs))
     print("class: " + str(n_codebooks))
     print()
@@ -138,13 +140,15 @@ def train_pitch(**kwargs):
     train_pitch.load_csv(filename, 'train')
     if extraction == 'paranada':
         for i in range(len(train_pitch.data_train[0])-1):
-            train_pitch.min_max_normalize(train_pitch.data_train, i, 0, 30)
+            train_pitch.min_max_normalize(train_pitch.data_train, i, 0, 50)
     elif extraction == 'pixel':
         for i in range(len(train_pitch.data_train[0])-1):
             train_pitch.min_max_normalize(train_pitch.data_train, i, 0, 255)
     else:
         for i in range(len(train_pitch.data_train[0])-1):
             train_pitch.min_max_normalize(train_pitch.data_train, i, 0, 30)
+    
+    train_pitch.random_codebooks()
 
     # load and prepare data test
     # filename = 'test_whole.csv'
@@ -200,8 +204,8 @@ def train_pitch(**kwargs):
     return score, duration
 
 # ================ Train Beats ================ #
-create_dataset.create_csv(identifier='beats', extraction='pixel', hist_axis='col', max_num_class=9, type='train')
-score_beats, duration_beats = train_beats(extraction='pixel', learning_rate=0.05, max_epoch=150, show_wrong_data=False)
+create_dataset.create_csv(identifier='beats', extraction='histogram', hist_axis='col', max_num_class=36, type='train')
+score_beats, duration_beats = train_beats(extraction='histogram', learning_rate=0.1, max_epoch=3000, show_wrong_data=False)
 
 # ================ Train Pitch ================= #
 # create_dataset.create_csv(identifier='quarter', extraction='paranada', hist_axis='row', max_num_class=4, length_area=7, type='train')
@@ -212,10 +216,10 @@ create_dataset.create_csv(identifier='all', extraction='paranada', hist_axis='ro
 # score_i, duration_i = train_pitch(identifier='quarter', extraction='paranada', learning_rate=0.05, max_epoch=4000, show_wrong_data=False)
 # score_j, duration_j = train_pitch(identifier='half', extraction='paranada', learning_rate=0.05, max_epoch=4000, show_wrong_data=False)
 # score_k, duration_k = train_pitch(identifier='whole', extraction='paranada', learning_rate=0.05, max_epoch=4000, show_wrong_data=False)
-score_pitch, duration_pitch = train_pitch(identifier='all', extraction='paranada', learning_rate=0.05, max_epoch=4000, show_wrong_data=False)
+score_pitch, duration_pitch = train_pitch(identifier='all', extraction='paranada', learning_rate=0.03, max_epoch=5000, show_wrong_data=False)
 
 print("\nScore Beats:\t" + str(round(score_beats, 2)) + "% (" + str(round(duration_beats, 2)) + "s)")
-print("\nScore Beats:\t" + str(round(score_pitch, 2)) + "% (" + str(round(duration_pitch, 2)) + "s)")
+print("\nScore Pitch:\t" + str(round(score_pitch, 2)) + "% (" + str(round(duration_pitch, 2)) + "s)")
 # print("Score Quarter:\t" + str(round(score_i, 2)) + "% (" + str(round(duration_i, 2)) + "s)")
 # print("Score Half:\t" + str(round(score_j, 2)) + "% (" + str(round(duration_j, 2)) + "s)")
 # print("Score Whole:\t" + str(round(score_k, 2)) + "% (" + str(round(duration_k, 2)) + "s)")

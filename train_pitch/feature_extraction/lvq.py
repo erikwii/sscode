@@ -122,7 +122,7 @@ class LVQ:
     # Normalization with min-max method
     def min_max_normalize(self, dataset, column, min=0, max=100):
         for i in range(len(dataset)):
-            dataset[i][column] = round((dataset[i][column] - min) / (max - min), 6)
+            dataset[i][column] = round(((dataset[i][column] - min) / (max - min)), 6)
 
     # calculate the Euclidean distance between two vectors
     def euclidean_distance(self, row1, row2):

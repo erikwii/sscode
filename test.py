@@ -1,6 +1,11 @@
+import os
 import cv2 as cv
 import numpy as np
 from matplotlib import pyplot as plt
+
+path = os.path.dirname(os.path.abspath(__file__))
+print(next(os.walk(path))[1])
+exit()
 img = cv.imread('img/originals-resized/note-eighth-a1-167.png', cv.IMREAD_GRAYSCALE)
 # img = cv.medianBlur(img, 5)
 ret, th1 = cv.threshold(img, 150, 255, cv.THRESH_BINARY_INV)

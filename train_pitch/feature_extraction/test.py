@@ -202,6 +202,8 @@ def train_pitch(**kwargs):
 
     return score, duration
 
+# test beats 
+
 create_dataset.create_csv_test(max_num_class=0, length_area=7)
 
 learning_rate = 0.05
@@ -214,29 +216,24 @@ test_beats.set_n_codebooks(n_codebooks)
 # load and prepare data test
 filename = 'beats_codebooks.csv'
 test_beats.import_codebooks(filename)
-test_beats.load_csv("test_pixel.csv", "test")
+test_beats.load_csv("test_histogram.csv", "test")
 
-for i in range(len(test_beats.data_test[0])-1):
-    test_beats.min_max_normalize(test_beats.data_test, i, 0, 255)
+# for i in range(len(test_beats.data_test[0])-1):
+#     test_beats.min_max_normalize(test_beats.data_test, i, 0, 255)
 
-# for i in range(len(test_beats.data_test)):
-#     print(test_beats.data_test[i][-1])
+score_beats, wrong_data_beats, actual_beats, predictions_beats = test_beats.accuracy_metric('test')
 
-for i in range(len(test_beats.codebooks[0])-1):
-    test_beats.min_max_normalize(test_beats.codebooks, i, 0, 255)
+print("====== TEST BEATS ======")
+print("jumlah data: " + str(len(predictions_beats)))
+print("score: " + str(round(score_beats, 3)) + "%")
+# print("wrong data: " + str(len(wrong_data_beats)) + " ", end="")
+# print(wrong_data_beats)
+# print("Actual: ", end="")
+# print(actual_beats)
+# print("Prediction: ", end="")
+# print(predictions_beats)
 
-score, wrong_data, actual, predictions = test_beats.accuracy_metric('test')
-
-print("score: " + str(round(score, 3)) + "%")
-print("\n")
-print("wrong data: ", end="")
-print(wrong_data)
-print("Actual: ", end="")
-print(actual)
-print("Prediction: ", end="")
-print(predictions)
-
-
+# test pitch
 
 create_dataset.create_csv_test(max_num_class=0, length_area=7)
 
@@ -255,19 +252,65 @@ test_pitch.load_csv("test_paranada.csv", "test")
 for i in range(len(test_pitch.data_test[0])-1):
     test_pitch.min_max_normalize(test_pitch.data_test, i, 0, 50)
 
-for i in range(len(test_pitch.data_test)):
-    print(test_pitch.data_test[i])
+score_pitch, wrong_data_pitch, actual_pitch, predictions_pitch = test_pitch.accuracy_metric('test')
 
-for i in range(len(test_pitch.codebooks[0])-1):
-    test_pitch.min_max_normalize(test_pitch.codebooks, i, 0, 50)
+print("\n====== TEST BEATS ======")
+print("jumlah data: " + str(len(predictions_pitch)))
+print("score: " + str(round(score_pitch, 3)) + "%")
+# print("wrong data: " + str(len(wrong_data_pitch)) + " ", end="")
+# print(wrong_data_pitch)
+# print("Actual: ", end="")
+# print(actual_pitch)
+# print("Prediction: ", end="")
+# print(predictions_pitch)
 
-score, wrong_data, actual, predictions_p = test_pitch.accuracy_metric('test')
+# =========
+# Statistic
+# =========
 
-print("score: " + str(round(score, 3)) + "%")
-print("\n")
-print("wrong data: ", end="")
-print(wrong_data)
-print("Actual: ", end="")
-print(actual)
-print("Prediction: ", end="")
-print(predictions_p)
+pitch_info = open("test_paranada_info.csv", 'r')
+pitch_data = pitch_info.read()
+pitch_data = pitch_data.split("\n")
+pitch_data.pop()
+
+file_info = open("test_histogram_info.csv", 'r')
+data_info = file_info.read()
+data_info = data_info.split("\n")
+data_info.pop()
+
+pitch_arranged = list()
+for i in range(len(data_info)):
+    for j in range(len(pitch_data)):
+        if data_info[i] == pitch_data[j]:
+            pitch_arranged.append([actual_pitch[j], predictions_pitch[j]])
+
+beat_class = ['whole', 'half', 'quarter']
+pitch_class = ['e1', 'f1', 'g1', 'a1', 'b1', 'c2', 'd2', 'e2', 'f2']
+
+print("\nNama\t\t\t\tBeat asli\tPitch asli\tBeat prediksi\tPitch prediksi\tSkor")
+for i in range(len(actual_beats)):
+    print(data_info[i], end="")
+    
+    if len(data_info[i]) < 24:
+        print("\t", end="")
+    
+    print("\t", end="")
+    print(beat_class[actual_beats[i]], end="")
+    
+    print("\t\t", end="")
+    print(pitch_class[pitch_arranged[i][0]], end="")
+    
+    print("\t\t", end="")
+    print(beat_class[predictions_beats[i]], end="")
+    
+    print("\t\t", end="")
+    print(pitch_class[pitch_arranged[i][1]], end="")
+    
+    skor = 0
+    if actual_beats[i] == predictions_beats[i]:
+        skor += 1
+    if pitch_arranged[i][0] == pitch_arranged[i][1]:
+        skor += 1
+    
+    print("\t\t", end="")
+    print(skor)

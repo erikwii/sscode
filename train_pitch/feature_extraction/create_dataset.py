@@ -55,11 +55,17 @@ def group_data(identifier):
 def group_data_beats():
     path = os.path.dirname(os.path.abspath(__file__))
 
-    dataset_path = path + "\\..\\..\\img\\train_beats\\"
+    dataset_path = path + "\\..\\..\\img\\train_pitch\\"
 
-    whole = glob.glob1(dataset_path+"whole\\", "note-whole*")
-    half = glob.glob1(dataset_path+"half\\", "note-half*")
-    quarter = glob.glob1(dataset_path+"quarter\\", "note-quarter*")
+    subdir = next(os.walk(dataset_path))[1]
+    
+    whole = list()
+    half = list()
+    quarter = list()
+    for i in range(len(subdir)):
+        whole.extend(glob.glob1(dataset_path+subdir[i]+"\\", "note-whole*"))
+        half.extend(glob.glob1(dataset_path+subdir[i]+"\\", "note-half*"))
+        quarter.extend(glob.glob1(dataset_path+subdir[i]+"\\", "note-quarter*"))
 
     beats = [whole, half, quarter]
 
@@ -161,7 +167,7 @@ def create_csv_test(**kwargs):
     length_area = kwargs.get('length_area', 5)
 
     test_group, dataset_path = group_data_test_beats()
-    extract_pixel(test_group, "test", identifier, dataset_path, thresh_cv, max_num_class)
+    extract_hist('col', test_group, "test", identifier, dataset_path, thresh_cv, max_num_class)
 
     test_group, dataset_path = group_data_test_pitch()
     extract_paranada(test_group, "test", identifier, dataset_path, thresh_cv, max_num_class, length_area)
@@ -256,8 +262,13 @@ def extract_paranada(group, type, identifier, dataset_path, thresh_method, max_n
     info.close()
 
 def extract_hist(hist_axis, group, type, identifier, dataset_path, thresh_method, max_num_class):
-    data = open(type +"_"+ identifier +".csv", "w")
-    info = open(type +"_"+ identifier +"_info.csv", "w")
+    if type == "train":
+        data = open(type + "_" + identifier + ".csv", "w")
+        info = open(type +"_"+ identifier +"_info.csv", "w")
+    else:
+        data = open(type + "_histogram.csv", "w")
+        info = open(type + "_histogram_info.csv", "w")
+
     class_column = 0
     for note in group:
 
@@ -277,6 +288,9 @@ def extract_hist(hist_axis, group, type, identifier, dataset_path, thresh_method
 
             # calculating histogram each col of image
             hist = np.sum(thresh == 255, axis=index_axis)
+            if hist_axis == 'col':
+                max = np.max(hist)
+                hist = min_max_normalize(hist, 0, max)
             
             for c in hist:
                 data.write(str(c) + ", ")
@@ -383,3 +397,9 @@ def detect_head(hist, length_area):
             area = this_area
 
     return index_area
+
+def min_max_normalize(dataset, min=0, max=100):
+    data = list()
+    for i in range(len(dataset)):
+        data.append(round(((dataset[i] - min) / (max - min)),6))
+    return data
