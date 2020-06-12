@@ -1,4 +1,3 @@
-# LVQ for the Ionosphere Dataset
 from random import seed
 from random import randrange
 from random import shuffle
@@ -31,8 +30,6 @@ class LVQ:
         # convert class column to integers
         self.str_column_to_int(dataset, -1)
 
-        # shuffle(dataset)
-
         if t == 'train':
             self.data_train = dataset
 
@@ -41,7 +38,7 @@ class LVQ:
         elif t == 'test':
             self.data_test = dataset
         else:
-            print("Hanya menerima string 'train' atau 'test' untuk tipe dataset")
+            print("Hanya menerima string 'train' atau 'test'")
 
     # Load a CSV file
     def load_csv(self, filename, t): 
@@ -71,7 +68,7 @@ class LVQ:
         elif t == 'test':
             self.data_test = dataset
         else:
-            print("Hanya menerima string 'train' atau 'test' untuk tipe dataset")
+            print("Hanya menerima string 'train' atau 'test'")
 
     def import_codebooks(self, filename):
         dataset = list()
@@ -93,7 +90,7 @@ class LVQ:
         self.n_codebooks = n
         self.codebooks = dataset
         
-        msg = "Import codebooks vector from " + filename + " done successfully"
+        msg = "Import codebooks vector from " + filename + " success"
         helper.write_log("dataset", '3', msg)
 
     def export_codebooks(self, filename):
@@ -103,7 +100,7 @@ class LVQ:
                 f.write(str(num) + ", ")
             f.write(str(codebook[-1]) + "\n")
         f.close()
-        msg = "Export codebooks vector to " + filename + ".csv done successfully"
+        msg = "Export codebooks vector to " + filename + ".csv success"
         helper.write_log("dataset", '3', msg)
 
     def set_n_codebooks(self, n):
@@ -191,7 +188,7 @@ class LVQ:
         elif t == 'test':
             data = self.data_test
         else:
-            print("Hanya menerima string 'train' atau 'test' untuk tipe dataset")
+            print("Hanya menerima string 'train' atau 'test'")
             return
 
         actual = [row[-1] for row in data]

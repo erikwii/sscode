@@ -73,11 +73,13 @@ pitch_info = open("test_paranada_info.csv", 'r')
 pitch_data = pitch_info.read()
 pitch_data = pitch_data.split("\n")
 pitch_data.pop()
+pitch_info.close()
 
 file_info = open("test_histogram_info.csv", 'r')
 data_info = file_info.read()
 data_info = data_info.split("\n")
 data_info.pop()
+file_info.close()
 
 pitch_arranged = list()
 for i in range(len(data_info)):
@@ -88,26 +90,37 @@ for i in range(len(data_info)):
 beat_class = ['whole', 'half', 'quarter']
 pitch_class = ['e1', 'f1', 'g1', 'a1', 'b1', 'c2', 'd2', 'e2', 'f2']
 
+table = open("test_table.csv", 'w')
+
 # Printing accuracy table
 skor_all = 0
-print("\nNama\t\t\t\tBeat asli\tPitch asli\tBeat prediksi\tPitch prediksi\tSkor")
+skor_half = 0
+skor_null = 0
+print("\nNo\tNama\t\t\t\tBeat asli\tPitch asli\tBeat prediksi\tPitch prediksi\tSkor")
+table.write("nama,beat asli,pitch asli,beat prediksi,pitch prediksi,skor\n")
 for i in range(len(actual_beats)):
+    print(i+1, end="\t")
     print(data_info[i], end="")
+    table.write(data_info[i] + ",")
     
     if len(data_info[i]) < 24:
         print("\t", end="")
     
     print("\t", end="")
     print(beat_class[actual_beats[i]], end="")
-    
+    table.write(beat_class[actual_beats[i]] + ",")
+
     print("\t\t", end="")
     print(pitch_class[pitch_arranged[i][0]], end="")
+    table.write(pitch_class[pitch_arranged[i][0]] + ",")
     
     print("\t\t", end="")
     print(beat_class[predictions_beats[i]], end="")
+    table.write(beat_class[predictions_beats[i]] + ",")
     
     print("\t\t", end="")
     print(pitch_class[pitch_arranged[i][1]], end="")
+    table.write(pitch_class[pitch_arranged[i][1]] + ",")
     
     skor = 0
     if actual_beats[i] == predictions_beats[i]:
@@ -116,8 +129,16 @@ for i in range(len(actual_beats)):
         skor += 1
     if skor == 2:
         skor_all += 1
+    elif skor == 1:
+        skor_half += 1
+    elif skor == 0:
+        skor_null += 1
+
     print("\t\t", end="")
     print(skor)
+    table.write(str(skor) + "\n")
+
+table.close()
 
 print("\n====== TEST BEATS ======")
 print("jumlah data: " + str(len(predictions_beats)))
@@ -128,6 +149,12 @@ print("====== TEST PITCH ======")
 print("jumlah data: " + str(len(predictions_pitch)))
 print("benar: " + str(len(actual_pitch) - len(wrong_data_pitch)) + "\tsalah: " + str(len(wrong_data_pitch)))
 print("score: " + str(round(score_pitch, 3)) + "%")
+
+print("\nSKOR 0: " + str(round(skor_null/len(actual_beats)*100, 3)) + "%", end=" ")
+print("(benar: " + str(skor_null) + "\tsalah: " + str(len(actual_beats)-skor_null) + ")")
+
+print("\nSKOR 1: " + str(round(skor_half/len(actual_beats)*100, 3)) + "%", end=" ")
+print("(benar: " + str(skor_half) + "\tsalah: " + str(len(actual_beats)-skor_half) + ")")
 
 print("\nSKOR AKURASI GABUNGAN: " + str(round(skor_all/len(actual_beats)*100, 3)) + "%", end=" ")
 print("(benar: " + str(skor_all) + "\tsalah: " + str(len(actual_beats)-skor_all) + ")")
