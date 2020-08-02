@@ -33,6 +33,7 @@ def train_beats(**kwargs):
     learn_rate = kwargs.get('learning_rate', 0.05)
     n_epochs = kwargs.get('max_epoch', 100)
     n_codebooks = kwargs.get('n_codebooks', 3)
+    codebooks_multiplier = kwargs.get('codebooks_multiplier', 1)
 
     print("learning rate: " + str(learn_rate))
     print("epoch: " + str(n_epochs))
@@ -44,13 +45,14 @@ def train_beats(**kwargs):
 
     # load and prepare data train
     filename = 'train_beats.csv'
-    train_beats.load_csv(filename, 'train')
+    train_beats.load_csv(filename, 'train', codebooks_multiplier=codebooks_multiplier)
     if extraction == 'pixel':
         for i in range(len(train_beats.data_train[0])-1):
             train_beats.min_max_normalize(train_beats.data_train, i, 0, 255)
     
-    train_beats.random_codebooks()
-
+    train_beats.random_codebooks(codebooks_multiplier)
+    # print([item[-1] for item in train_beats.codebooks])
+    # exit()
     # Training process
     start_time = time.time()
     train_beats.train_codebooks(learn_rate, n_epochs)
@@ -87,6 +89,7 @@ def train_pitch(**kwargs):
     learn_rate = kwargs.get('learning_rate', 0.05)
     n_epochs = kwargs.get('max_epoch', 100)
     n_codebooks = kwargs.get('n_codebooks', 9)
+    codebooks_multiplier = kwargs.get('codebooks_multiplier', 1)
 
     show_wrong_data = kwargs.get('show_wrong_data', False)
 
@@ -100,7 +103,7 @@ def train_pitch(**kwargs):
 
     # load and prepare data train
     filename = 'train_'+ identifier +'.csv'
-    train_pitch.load_csv(filename, 'train')
+    train_pitch.load_csv(filename, 'train', codebooks_multiplier=codebooks_multiplier)
     if extraction == 'paranada':
         for i in range(len(train_pitch.data_train[0])-1):
             train_pitch.min_max_normalize(train_pitch.data_train, i, 0, 50)
@@ -111,7 +114,7 @@ def train_pitch(**kwargs):
         for i in range(len(train_pitch.data_train[0])-1):
             train_pitch.min_max_normalize(train_pitch.data_train, i, 0, 30)
     
-    train_pitch.random_codebooks()
+    train_pitch.random_codebooks(2)
 
     # Training process
     start_time = time.time()
@@ -141,8 +144,8 @@ def train_pitch(**kwargs):
 
 # ================ Train Beats ================ #
 create_dataset.create_csv(identifier='beats', extraction='histogram', hist_axis='col', max_num_class=36, type='train')
-score_beats, duration_beats = train_beats(extraction='histogram', learning_rate=0.1, max_epoch=3000, show_wrong_data=False)
-
+score_beats, duration_beats = train_beats(extraction='histogram', codebooks_multiplier=3, learning_rate=0.1, max_epoch=3000, show_wrong_data=False)
+exit()
 # ================ Train Pitch ================= #
 create_dataset.create_csv(identifier='all', extraction='paranada', hist_axis='row', max_num_class=16, length_area=7, type='train')
 score_pitch, duration_pitch = train_pitch(identifier='all', extraction='paranada', learning_rate=0.03, max_epoch=5000, show_wrong_data=False)

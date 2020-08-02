@@ -37,6 +37,7 @@ test_beats.set_n_codebooks(n_codebooks)
 filename = 'beats_codebooks.csv'
 test_beats.import_codebooks(filename)
 test_beats.load_csv("test_histogram.csv", "test")
+print([item[-1] for item in test_beats.codebooks])
 
 # for i in range(len(test_beats.data_test[0])-1):
 #     test_beats.min_max_normalize(test_beats.data_test, i, 0, 255)
@@ -156,6 +157,6 @@ print("(benar: " + str(skor_null) + "\tsalah: " + str(len(actual_beats)-skor_nul
 print("\nSKOR 1: " + str(round(skor_half/len(actual_beats)*100, 3)) + "%", end=" ")
 print("(benar: " + str(skor_half) + "\tsalah: " + str(len(actual_beats)-skor_half) + ")")
 
-print("\nSKOR AKURASI GABUNGAN: " + str(round(skor_all/len(actual_beats)*100, 3)) + "%", end=" ")
+print("\nSKOR AKURASI GABUNGAN (2): " + str(round(skor_all/len(actual_beats)*100, 3)) + "%", end=" ")
 print("(benar: " + str(skor_all) + "\tsalah: " + str(len(actual_beats)-skor_all) + ")")
 print("=============================")

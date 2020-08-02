@@ -1,3 +1,9 @@
+"""
+Classification of Music Notation Image using Learning Vector Quantization (LVQ) Method
+By: Erik Santiago
+github: @erikwii  instagram: @erikwiii
+"""
+
 from random import seed
 from random import randrange
 from random import shuffle
@@ -22,7 +28,7 @@ class LVQ:
     def __init__(self):
         pass
 
-    def set_data(self, dataset, t):
+    def set_data(self, dataset, t, **kwargs):
         for i in range(len(dataset[0])-1):
             self.str_column_to_float(dataset, i)
             # self.min_max_normalize(dataset, i, 0, 255)
@@ -30,18 +36,20 @@ class LVQ:
         # convert class column to integers
         self.str_column_to_int(dataset, -1)
 
+        codebooks_multiplier = kwargs.get('codebooks_multiplier', 1)
+
         if t == 'train':
             self.data_train = dataset
 
             if self.n_codebooks > 0:
-                self.random_codebooks()
+                self.random_codebooks(codebooks_multiplier)
         elif t == 'test':
             self.data_test = dataset
         else:
             print("Hanya menerima string 'train' atau 'test'")
 
     # Load a CSV file
-    def load_csv(self, filename, t): 
+    def load_csv(self, filename, t, **kwargs):
         dataset = list()
         with open(filename, 'r') as file:
             csv_reader = reader(file)
@@ -59,11 +67,13 @@ class LVQ:
         
         # shuffle(dataset)
 
+        codebooks_multiplier = kwargs.get('codebooks_multiplier', 1)
+
         if t == 'train':
             self.data_train = dataset
 
             if self.n_codebooks > 0:
-                self.random_codebooks()
+                self.random_codebooks(codebooks_multiplier)
 
         elif t == 'test':
             self.data_test = dataset
@@ -143,15 +153,15 @@ class LVQ:
         return bmu[-1]
 
     # Create a random codebook vector
-    def random_codebooks(self):
+    def random_codebooks(self, multiplier=1):
         finded_class = list()
         codebook = list()
         for row in self.data_train:
-            if (row[-1] in finded_class) == False:
+            if finded_class.count(row[-1]) < multiplier:
                 finded_class.append(row[-1])
                 codebook.append(row)
 
-            if len(finded_class) == self.n_codebooks:
+            if len(finded_class) == (self.n_codebooks * multiplier):
                 break
         self.codebooks = codebook
 
