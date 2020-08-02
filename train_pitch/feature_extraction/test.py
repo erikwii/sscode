@@ -152,11 +152,11 @@ print("benar: " + str(len(actual_pitch) - len(wrong_data_pitch)) + "\tsalah: " +
 print("score: " + str(round(score_pitch, 3)) + "%")
 
 print("\nSKOR 0: " + str(round(skor_null/len(actual_beats)*100, 3)) + "%", end=" ")
-print("(benar: " + str(skor_null) + "\tsalah: " + str(len(actual_beats)-skor_null) + ")")
+print("(jumlah: " + str(skor_null) + ")")
 
 print("\nSKOR 1: " + str(round(skor_half/len(actual_beats)*100, 3)) + "%", end=" ")
-print("(benar: " + str(skor_half) + "\tsalah: " + str(len(actual_beats)-skor_half) + ")")
+print("(jumlah: " + str(skor_half) + ")")
 
 print("\nSKOR AKURASI GABUNGAN (2): " + str(round(skor_all/len(actual_beats)*100, 3)) + "%", end=" ")
-print("(benar: " + str(skor_all) + "\tsalah: " + str(len(actual_beats)-skor_all) + ")")
+print("(jumlah: " + str(skor_all) + ")")
 print("=============================")

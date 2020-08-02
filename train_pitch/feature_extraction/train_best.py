@@ -114,7 +114,7 @@ def train_pitch(**kwargs):
         for i in range(len(train_pitch.data_train[0])-1):
             train_pitch.min_max_normalize(train_pitch.data_train, i, 0, 30)
     
-    train_pitch.random_codebooks(2)
+    train_pitch.random_codebooks(codebooks_multiplier)
 
     # Training process
     start_time = time.time()
@@ -127,6 +127,7 @@ def train_pitch(**kwargs):
     score, wrong_data, actual, predictions = train_pitch.accuracy_metric('train')
 
     print("===============train "+ identifier +"==============")
+    print("Waktu proses pembelajaran: %s detik ---" % (duration))
     print("score: " + str(round(score, 3)) + "%")
     print("\n")
     print("wrong data: ", end="")
@@ -142,13 +143,13 @@ def train_pitch(**kwargs):
 
     return score, duration
 
-# ================ Train Beats ================ #
+# # ================ Train Beats ================ #
 create_dataset.create_csv(identifier='beats', extraction='histogram', hist_axis='col', max_num_class=36, type='train')
 score_beats, duration_beats = train_beats(extraction='histogram', codebooks_multiplier=3, learning_rate=0.1, max_epoch=3000, show_wrong_data=False)
-exit()
+
 # ================ Train Pitch ================= #
 create_dataset.create_csv(identifier='all', extraction='paranada', hist_axis='row', max_num_class=16, length_area=7, type='train')
-score_pitch, duration_pitch = train_pitch(identifier='all', extraction='paranada', learning_rate=0.03, max_epoch=5000, show_wrong_data=False)
-
+score_pitch, duration_pitch = train_pitch(identifier='all', codebooks_multiplier=3, extraction='paranada', learning_rate=0.03, max_epoch=5000, show_wrong_data=False)
+exit()
 print("\nScore Beats:\t" + str(round(score_beats, 2)) + "% (" + str(round(duration_beats, 2)) + "s)")
 print("\nScore Pitch:\t" + str(round(score_pitch, 2)) + "% (" + str(round(duration_pitch, 2)) + "s)")
